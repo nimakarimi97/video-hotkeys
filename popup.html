@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Seek Hotkey</title>
+  <title>Video Hotkeys</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -14,9 +14,9 @@
         <h1>Hotkey guide</h1>
       </div>
       <label class="toggle" title="Enable or disable video hotkeys">
-        <input id="enabled" type="checkbox">
+        <input id="enabled" type="checkbox" aria-label="Enable video hotkeys" checked>
         <span class="switch" aria-hidden="true"></span>
-        <span id="status">On</span>
+        <span id="status" role="status" aria-live="polite">On</span>
       </label>
     </header>
 

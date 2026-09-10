@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title description">
+  <title id="title">Video Seek Hotkey</title>
+  <desc id="description">A play symbol followed by a seek-forward mark</desc>
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#17211b"/>
+  <path d="M34 34a6 6 0 0 1 9.1-5.1l43 29.9a6 6 0 0 1 0 10.4l-43 29.9A6 6 0 0 1 34 94V34Z" fill="#f4f1e8"/>
+  <path d="m76 42 24 22-24 22" fill="none" stroke="#d96543" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+  <path d="M101 42v44" fill="none" stroke="#d96543" stroke-linecap="round" stroke-width="10"/>
+</svg>
