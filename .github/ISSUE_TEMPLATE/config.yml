@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security report
+    url: https://nimakarimi.me
+    about: Read SECURITY.md and contact the maintainer privately instead of opening a public issue.
