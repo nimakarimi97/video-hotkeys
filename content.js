@@ -1,9 +1,19 @@
-const TOGGLE_STORAGE_KEY = 'udemyHotkeysEnabled';
+const TOGGLE_STORAGE_KEY = 'videoHotkeysEnabled';
+const LEGACY_TOGGLE_STORAGE_KEY = 'udemyHotkeysEnabled';
 let isHotkeyEnabled = true;
 
-chrome.storage.local.get({ [TOGGLE_STORAGE_KEY]: true }, (result) => {
- isHotkeyEnabled = Boolean(result[TOGGLE_STORAGE_KEY]);
-});
+chrome.storage.local.get(
+ [TOGGLE_STORAGE_KEY, LEGACY_TOGGLE_STORAGE_KEY],
+ (result) => {
+  const storedValue = result[TOGGLE_STORAGE_KEY] ?? result[LEGACY_TOGGLE_STORAGE_KEY];
+  isHotkeyEnabled = storedValue === undefined ? true : Boolean(storedValue);
+
+  if (result[TOGGLE_STORAGE_KEY] === undefined && result[LEGACY_TOGGLE_STORAGE_KEY] !== undefined) {
+   chrome.storage.local.set({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
+   chrome.storage.local.remove(LEGACY_TOGGLE_STORAGE_KEY);
+  }
+ }
+);
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
  if (areaName === 'local' && changes[TOGGLE_STORAGE_KEY]) {
@@ -12,14 +22,14 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 function showToggleStatus(isEnabled) {
- const existing = document.getElementById('udemy-hotkeys-toggle-status');
+ const existing = document.getElementById('video-hotkeys-toggle-status');
  if (existing) {
   existing.remove();
  }
 
  const badge = document.createElement('div');
- badge.id = 'udemy-hotkeys-toggle-status';
- badge.textContent = `Udemy hotkey ${isEnabled ? 'ON' : 'OFF'}`;
+ badge.id = 'video-hotkeys-toggle-status';
+ badge.textContent = `Video hotkeys ${isEnabled ? 'ON' : 'OFF'}`;
  badge.style.position = 'fixed';
  badge.style.top = '16px';
  badge.style.right = '16px';
@@ -38,13 +48,13 @@ function showToggleStatus(isEnabled) {
 }
 
 function showSpeedStatus(speed) {
- const existing = document.getElementById('udemy-hotkeys-speed-status');
+ const existing = document.getElementById('video-hotkeys-speed-status');
  if (existing) {
   existing.remove();
  }
 
  const badge = document.createElement('div');
- badge.id = 'udemy-hotkeys-speed-status';
+ badge.id = 'video-hotkeys-speed-status';
  badge.textContent = `Speed ${speed.toFixed(2)}x`;
  badge.style.position = 'fixed';
  badge.style.top = '56px';
@@ -71,28 +81,9 @@ function clampSpeed(value) {
  return Math.min(4, Math.max(0.5, value));
 }
 
-function formatSpeedText(speed) {
- const rounded = Math.round(speed * 100) / 100;
- const text = Number.isInteger(rounded)
-  ? String(rounded)
-  : String(rounded).replace(/0+$/, '').replace(/\.$/, '');
- return `${text}x`;
-}
-
-function updateUdemySpeedLabel(speed) {
- const label =
-  document.querySelector('.playback-rate--trigger-text--l7hqr') ||
-  document.querySelector('[class^="playback-rate--trigger-text--"]');
-
- if (label) {
-  label.textContent = formatSpeedText(speed);
- }
-}
-
 function setVideoSpeed(video, nextSpeed) {
  const clamped = clampSpeed(nextSpeed);
  video.playbackRate = clamped;
- updateUdemySpeedLabel(clamped);
  showSpeedStatus(clamped);
 }
 
@@ -122,7 +113,9 @@ window.addEventListener(
   const isTypingField =
    tagName === 'INPUT' ||
    tagName === 'TEXTAREA' ||
-   target?.isContentEditable;
+    tagName === 'SELECT' ||
+    target?.isContentEditable ||
+    target?.getAttribute?.('role') === 'textbox';
 
   if (isTypingField) {
    return;
