@@ -5,17 +5,25 @@ import vm from 'node:vm';
 
 const source = await readFile(new URL('../content.js', import.meta.url), 'utf8');
 
-function createHarness(initialStorage = {}) {
+function createHarness(initialStorage = {}, videoOverrides = [{}]) {
   const storage = { ...initialStorage };
   const listeners = {};
   const appendedElements = [];
-  const video = { currentTime: 100, playbackRate: 1 };
+  const videos = videoOverrides.map((overrides) => ({
+    currentTime: 100,
+    ended: false,
+    paused: true,
+    playbackRate: 1,
+    tagName: 'VIDEO',
+    ...overrides
+  }));
 
   const document = {
+    addEventListener: (type, listener) => { listeners[`document:${type}`] = listener; },
     body: { appendChild: (element) => appendedElements.push(element) },
-    createElement: () => ({ style: {}, remove() {} }),
+    createElement: () => ({ style: {}, remove() { } }),
     getElementById: () => null,
-    querySelector: (selector) => selector === 'video' ? video : null
+    querySelectorAll: (selector) => selector === 'video' ? videos : []
   };
 
   const chrome = {
@@ -56,7 +64,8 @@ function createHarness(initialStorage = {}) {
     },
     listeners,
     storage,
-    video
+    video: videos[0],
+    videos
   };
 }
 
@@ -82,6 +91,15 @@ test('seeks by 15 seconds with platform modifier keys', () => {
   harness.dispatch({ key: 'ArrowLeft', ctrlKey: true });
 
   assert.equal(harness.video.currentTime, 100);
+});
+
+test('controls the currently playing video instead of the first video', () => {
+  const harness = createHarness({}, [{ paused: true }, { paused: false }]);
+
+  harness.dispatch({ key: 'ArrowRight' });
+
+  assert.equal(harness.videos[0].currentTime, 100);
+  assert.equal(harness.videos[1].currentTime, 105);
 });
 
 test('clamps speed changes and resets playback speed', () => {
