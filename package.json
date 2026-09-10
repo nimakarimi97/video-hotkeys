@@ -1,0 +1,14 @@
+{
+  "name": "video-hotkeys",
+  "version": "1.4.0",
+  "private": true,
+  "description": "Keyboard controls for seeking and changing playback speed in HTML5 videos.",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test",
+    "check": "npm run validate && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
