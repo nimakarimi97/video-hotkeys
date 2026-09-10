@@ -4,6 +4,10 @@
   "version": "1.3",
   "description": "Adds video seek and playback-speed hotkeys on websites.",
   "permissions": ["storage"],
+  "action": {
+    "default_title": "Video Seek Hotkey",
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],

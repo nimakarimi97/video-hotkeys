@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Seek Hotkey</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">VIDEO CONTROLS</p>
+        <h1>Hotkey guide</h1>
+      </div>
+      <label class="toggle" title="Enable or disable video hotkeys">
+        <input id="enabled" type="checkbox">
+        <span class="switch" aria-hidden="true"></span>
+        <span id="status">On</span>
+      </label>
+    </header>
+
+    <section aria-labelledby="seek-heading">
+      <h2 id="seek-heading">Seek</h2>
+      <dl>
+        <div><dt>Forward 5 seconds</dt><dd><kbd>→</kbd></dd></div>
+        <div><dt>Forward 15 seconds</dt><dd><kbd>⌘/Ctrl</kbd><span>+</span><kbd>→</kbd></dd></div>
+        <div><dt>Back 15 seconds</dt><dd><kbd>⌘/Ctrl</kbd><span>+</span><kbd>←</kbd></dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="speed-heading">
+      <h2 id="speed-heading">Playback speed</h2>
+      <dl>
+        <div><dt>Increase</dt><dd><kbd>Shift</kbd><span>+</span><kbd>&gt;</kbd></dd></div>
+        <div><dt>Decrease</dt><dd><kbd>Shift</kbd><span>+</span><kbd>&lt;</kbd></dd></div>
+        <div><dt>Reset to 1×</dt><dd><kbd>Shift</kbd><span>+</span><kbd>?</kbd></dd></div>
+      </dl>
+    </section>
+
+    <p class="hint">Open a page with a video, then use a shortcut.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

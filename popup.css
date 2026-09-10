@@ -1,0 +1,159 @@
+:root {
+  color-scheme: light;
+  font-family: "Avenir Next", Avenir, sans-serif;
+  color: #17211b;
+  background: #f4f1e8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  margin: 0;
+  background:
+    linear-gradient(135deg, rgba(218, 101, 67, 0.12), transparent 45%),
+    #f4f1e8;
+}
+
+main {
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #17211b;
+}
+
+.eyebrow {
+  margin: 0 0 3px;
+  color: #b34e31;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border: 2px solid #17211b;
+  border-radius: 10px;
+  background: #d2cec2;
+  transition: background 160ms ease;
+}
+
+.switch::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #17211b;
+  content: "";
+  transition: transform 160ms ease;
+}
+
+.toggle input:checked + .switch {
+  background: #71b780;
+}
+
+.toggle input:checked + .switch::after {
+  transform: translateX(14px);
+}
+
+.toggle input:focus-visible + .switch {
+  outline: 2px solid #b34e31;
+  outline-offset: 2px;
+}
+
+section {
+  margin-top: 16px;
+}
+
+h2 {
+  margin: 0 0 7px;
+  color: #576159;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+dl {
+  margin: 0;
+}
+
+dl div {
+  display: flex;
+  min-height: 35px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #d2cec2;
+}
+
+dt {
+  font-size: 13px;
+}
+
+dd {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  color: #777268;
+  font-size: 10px;
+}
+
+kbd {
+  min-width: 25px;
+  padding: 3px 6px;
+  border: 1px solid #a9a397;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: #fffdf7;
+  color: #17211b;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.hint {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid #d96543;
+  background: #e6e1d5;
+  color: #505951;
+  font-size: 11px;
+  line-height: 1.4;
+}
