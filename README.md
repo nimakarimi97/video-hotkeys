@@ -19,17 +19,16 @@
 ## Use it in Chrome
 1. Open Chrome and pin the extension to the toolbar by clicking the puzzle icon and selecting this extension.
 2. Go to any page with a playable video.
-3. Click the video once so it is active, then use the hotkeys:
+3. Click the extension icon to see the shortcut guide or turn the hotkeys on and off.
+4. Click the video once so it is active, then use the hotkeys:
    - `Right Arrow`: skip forward 5 seconds
    - `Ctrl/Cmd + Right Arrow`: skip forward 15 seconds
    - `Ctrl/Cmd + Left Arrow`: skip backward 15 seconds
    - `Shift + >`: increase playback speed
    - `Shift + <`: decrease playback speed
    - `Shift + ?`: reset speed to `1.0x`
-4. If you want to disable the hotkeys temporarily, press `Ctrl + Shift + U`.
-5. A small status badge appears on the page to confirm whether hotkeys are on or off.
-
-> The extension does not open a popup when you click it. It runs in the page itself, so the main action is using the shortcut keys while the video is playing.
+5. You can also press `Ctrl + Shift + U` to turn the hotkeys on or off without opening the popup.
+6. A small status badge appears on the page to confirm whether hotkeys are on or off.
 
 ## Notes
 - Chrome requires the extension to be reloaded from `chrome://extensions` after changing `manifest.json`.
