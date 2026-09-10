@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Video Hotkeys",
-  "version": "1.4.0",
-  "description": "Private keyboard controls for the video you're watching. One permission, zero network requests.",
+  "version": "1.5.0",
+  "description": "Control the video you're watching with customizable keyboard shortcuts. One permission, zero network requests.",
   "homepage_url": "https://nimakarimi.me",
   "permissions": ["storage"],
   "icons": {

@@ -2,6 +2,19 @@
 
 All notable changes to Video Hotkeys are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2026-09-10
+
+### Added
+
+- Automatic selection of the currently playing video on multi-video pages.
+- Customizable short and long seek intervals with `5` and `15` second defaults.
+- Firefox support through the promise-based WebExtensions API and Gecko manifest metadata.
+- Animated product demo and reusable Chrome/Firefox store-listing copy.
+
+### Changed
+
+- Made the one-permission, zero-network-requests privacy advantage prominent.
+
 ## [1.4.0] - 2026-09-10
 
 ### Added
