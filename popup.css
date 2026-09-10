@@ -199,6 +199,22 @@ kbd {
   line-height: 1.4;
 }
 
+.privacy-proof {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 16px 0 0;
+  color: #276540;
+  font-size: 11px;
+}
+
+.privacy-proof strong::after {
+  margin-left: 9px;
+  color: #a9a397;
+  content: "|";
+}
+
 footer {
   display: flex;
   align-items: center;

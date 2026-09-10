@@ -5,16 +5,19 @@
 <h1 align="center">Video Hotkeys</h1>
 
 <p align="center">
-   Seek and control playback speed on HTML5 videos without reaching for the player controls.
+   Seek and control playback speed on the HTML5 video you're actually watching.
 </p>
 
 <p align="center">
-   <img alt="Chrome Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest_V3-4285F4?logo=googlechrome&logoColor=white">
+   <img alt="Chrome and Firefox" src="https://img.shields.io/badge/Chrome_%2B_Firefox-WebExtensions-4285F4">
    <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-17211b"></a>
-   <img alt="No tracking" src="https://img.shields.io/badge/tracking-none-2f855a">
+   <img alt="One permission" src="https://img.shields.io/badge/permissions-1-d96543">
+   <img alt="Zero network requests" src="https://img.shields.io/badge/network_requests-0-2f855a">
 </p>
 
-Video Hotkeys is a small, privacy-friendly Chrome extension for controlling the first HTML5 video on the current page. It has no analytics, no remote code, and no account requirement.
+## One permission. Zero network requests.
+
+Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It controls the currently playing video, works entirely in your browser, and has no analytics, remote code, or account requirement.
 
 <p align="center">
    <img src="assets/popup-preview.png" width="340" alt="Video Hotkeys popup showing the shortcut guide and enabled toggle">
@@ -23,6 +26,8 @@ Video Hotkeys is a small, privacy-friendly Chrome extension for controlling the 
 ## Features
 
 - Seek forward or backward without opening player controls.
+- Control the currently playing video on pages containing multiple videos.
+- Customize short and long seek intervals, with sensible `5` and `15` second defaults.
 - Adjust playback speed from `0.5x` to `4x` in `0.25x` steps.
 - Toggle all hotkeys from the toolbar popup or keyboard.
 - Preserve the enabled setting between browser sessions.
@@ -43,7 +48,7 @@ Video Hotkeys is a small, privacy-friendly Chrome extension for controlling the 
 
 Some websites or operating systems may already use one of these shortcuts. Open the extension popup to disable Video Hotkeys temporarily if a conflict occurs.
 
-## Install Locally
+## Install In Chrome
 
 1. Download or clone this repository.
 2. Open `chrome://extensions` in Chrome.
@@ -53,19 +58,28 @@ Some websites or operating systems may already use one of these shortcuts. Open 
 
 After updating the project, return to `chrome://extensions` and select the reload button on the extension card.
 
+## Install In Firefox
+
+1. Download or clone this repository.
+2. Open `about:debugging#/runtime/this-firefox` in Firefox.
+3. Select **Load Temporary Add-on**.
+4. Choose this project's `manifest.json` file.
+
+Temporary extensions remain installed until Firefox restarts. Signed release builds can be submitted to Firefox Add-ons using the same WebExtensions package.
+
 ## Use The Extension
 
 1. Open a page containing an HTML5 video.
-2. Left-click the pinned extension icon to view the shortcut guide or change the enabled state.
+2. Left-click the pinned extension icon to view the shortcut guide, customize seek intervals, or change the enabled state.
 3. Return to the page and use any shortcut from the table above.
 
 Right-clicking the icon opens Chrome's extension context menu rather than the Video Hotkeys popup.
 
 ## Privacy And Permissions
 
-Video Hotkeys requests only Chrome's `storage` permission. It stores one boolean setting locally: whether hotkeys are enabled.
+Video Hotkeys requests only the WebExtensions `storage` permission. It stores the enabled state and your two seek intervals locally.
 
-The content script runs on HTTP and HTTPS pages so it can find and control HTML5 video elements. It does not collect browsing history, send page data, load remote code, or make network requests. Chrome-protected pages and videos inside some embedded frames are outside the extension's reach.
+The content script runs on HTTP and HTTPS pages so it can find and control HTML5 video elements. It does not collect browsing history, send page data, load remote code, or make network requests. Browser-protected pages and videos inside some embedded frames are outside the extension's reach.
 
 ## Development
 

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Video Hotkeys",
   "version": "1.4.0",
-  "description": "Control HTML5 video seeking and playback speed with simple keyboard shortcuts.",
+  "description": "Private keyboard controls for the video you're watching. One permission, zero network requests.",
   "homepage_url": "https://nimakarimi.me",
   "permissions": ["storage"],
   "icons": {
