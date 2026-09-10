@@ -157,3 +157,29 @@ kbd {
   font-size: 11px;
   line-height: 1.4;
 }
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: #777268;
+  font-size: 10px;
+}
+
+footer a {
+  color: #8f3f28;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+footer a:hover,
+footer a:focus-visible {
+  text-decoration: underline;
+}
+
+footer a:focus-visible {
+  outline: 2px solid #b34e31;
+  outline-offset: 2px;
+}
