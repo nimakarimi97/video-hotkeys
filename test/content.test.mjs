@@ -93,6 +93,15 @@ test('seeks by 15 seconds with platform modifier keys', () => {
   assert.equal(harness.video.currentTime, 100);
 });
 
+test('uses customizable seek intervals', () => {
+  const harness = createHarness({ shortSeekSeconds: 8, longSeekSeconds: 30 });
+
+  harness.dispatch({ key: 'ArrowRight' });
+  harness.dispatch({ key: 'ArrowLeft', ctrlKey: true });
+
+  assert.equal(harness.video.currentTime, 78);
+});
+
 test('controls the currently playing video instead of the first video', () => {
   const harness = createHarness({}, [{ paused: true }, { paused: false }]);
 

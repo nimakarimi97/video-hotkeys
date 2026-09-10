@@ -1,13 +1,24 @@
 const TOGGLE_STORAGE_KEY = 'videoHotkeysEnabled';
 const LEGACY_TOGGLE_STORAGE_KEY = 'udemyHotkeysEnabled';
+const SHORT_SEEK_STORAGE_KEY = 'shortSeekSeconds';
+const LONG_SEEK_STORAGE_KEY = 'longSeekSeconds';
 let isHotkeyEnabled = true;
+let shortSeekSeconds = 5;
+let longSeekSeconds = 15;
 let activeVideo = null;
 
+function normalizeSeekInterval(value, fallback) {
+ const seconds = Number(value);
+ return Number.isFinite(seconds) && seconds >= 1 && seconds <= 600 ? seconds : fallback;
+}
+
 chrome.storage.local.get(
- [TOGGLE_STORAGE_KEY, LEGACY_TOGGLE_STORAGE_KEY],
+ [TOGGLE_STORAGE_KEY, LEGACY_TOGGLE_STORAGE_KEY, SHORT_SEEK_STORAGE_KEY, LONG_SEEK_STORAGE_KEY],
  (result) => {
   const storedValue = result[TOGGLE_STORAGE_KEY] ?? result[LEGACY_TOGGLE_STORAGE_KEY];
   isHotkeyEnabled = storedValue === undefined ? true : Boolean(storedValue);
+   shortSeekSeconds = normalizeSeekInterval(result[SHORT_SEEK_STORAGE_KEY], 5);
+   longSeekSeconds = normalizeSeekInterval(result[LONG_SEEK_STORAGE_KEY], 15);
 
   if (result[TOGGLE_STORAGE_KEY] === undefined && result[LEGACY_TOGGLE_STORAGE_KEY] !== undefined) {
      chrome.storage.local.set({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
@@ -17,8 +28,18 @@ chrome.storage.local.get(
 );
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
- if (areaName === 'local' && changes[TOGGLE_STORAGE_KEY]) {
+ if (areaName !== 'local') {
+  return;
+ }
+
+ if (changes[TOGGLE_STORAGE_KEY]) {
   isHotkeyEnabled = Boolean(changes[TOGGLE_STORAGE_KEY].newValue);
+ }
+ if (changes[SHORT_SEEK_STORAGE_KEY]) {
+  shortSeekSeconds = normalizeSeekInterval(changes[SHORT_SEEK_STORAGE_KEY].newValue, 5);
+ }
+ if (changes[LONG_SEEK_STORAGE_KEY]) {
+  longSeekSeconds = normalizeSeekInterval(changes[LONG_SEEK_STORAGE_KEY].newValue, 15);
  }
 });
 
@@ -168,7 +189,7 @@ window.addEventListener(
    (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
   ) {
    if (video) {
-    video.currentTime += event.key === 'ArrowRight' ? 15 : -15;
+      video.currentTime += event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
     event.preventDefault();
    }
    return;
@@ -201,7 +222,7 @@ window.addEventListener(
 
   if (event.key === 'ArrowRight') {
    if (video) {
-        video.currentTime += 5;
+      video.currentTime += shortSeekSeconds;
     event.preventDefault();
    }
   }
