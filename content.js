@@ -2,17 +2,34 @@ const TOGGLE_STORAGE_KEY = 'videoHotkeysEnabled';
 const LEGACY_TOGGLE_STORAGE_KEY = 'udemyHotkeysEnabled';
 const SHORT_SEEK_STORAGE_KEY = 'shortSeekSeconds';
 const LONG_SEEK_STORAGE_KEY = 'longSeekSeconds';
+const extensionApi = globalThis.browser ?? globalThis.chrome;
 let isHotkeyEnabled = true;
 let shortSeekSeconds = 5;
 let longSeekSeconds = 15;
 let activeVideo = null;
+
+function storageGet(keys, callback) {
+ if (globalThis.browser) {
+  extensionApi.storage.local.get(keys).then(callback);
+ } else {
+  extensionApi.storage.local.get(keys, callback);
+ }
+}
+
+function storageSet(values) {
+ extensionApi.storage.local.set(values);
+}
+
+function storageRemove(key) {
+ extensionApi.storage.local.remove(key);
+}
 
 function normalizeSeekInterval(value, fallback) {
  const seconds = Number(value);
  return Number.isFinite(seconds) && seconds >= 1 && seconds <= 600 ? seconds : fallback;
 }
 
-chrome.storage.local.get(
+storageGet(
  [TOGGLE_STORAGE_KEY, LEGACY_TOGGLE_STORAGE_KEY, SHORT_SEEK_STORAGE_KEY, LONG_SEEK_STORAGE_KEY],
  (result) => {
   const storedValue = result[TOGGLE_STORAGE_KEY] ?? result[LEGACY_TOGGLE_STORAGE_KEY];
@@ -21,13 +38,13 @@ chrome.storage.local.get(
    longSeekSeconds = normalizeSeekInterval(result[LONG_SEEK_STORAGE_KEY], 15);
 
   if (result[TOGGLE_STORAGE_KEY] === undefined && result[LEGACY_TOGGLE_STORAGE_KEY] !== undefined) {
-     chrome.storage.local.set({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
-     chrome.storage.local.remove(LEGACY_TOGGLE_STORAGE_KEY);
+   storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
+   storageRemove(LEGACY_TOGGLE_STORAGE_KEY);
   }
  }
 );
 
-chrome.storage.onChanged.addListener((changes, areaName) => {
+extensionApi.storage.onChanged.addListener((changes, areaName) => {
  if (areaName !== 'local') {
   return;
  }
@@ -159,7 +176,7 @@ window.addEventListener(
 
   if (event.ctrlKey && event.shiftKey && key === 'u') {
    isHotkeyEnabled = !isHotkeyEnabled;
-    chrome.storage.local.set({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
+   storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
    showToggleStatus(isHotkeyEnabled);
    event.preventDefault();
    return;

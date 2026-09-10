@@ -11,6 +11,11 @@ assert.equal(manifest.manifest_version, 3, 'manifest_version must be 3');
 assert.match(manifest.version, /^\d+(?:\.\d+){0,3}$/, 'version must use Chrome version syntax');
 assert.ok(manifest.description.length <= 132, 'description must be at most 132 characters');
 assert.deepEqual(manifest.permissions, ['storage'], 'extension should request only storage permission');
+assert.deepEqual(
+  manifest.browser_specific_settings?.gecko?.data_collection_permissions?.required,
+  ['none'],
+  'Firefox manifest must declare that no data is collected'
+);
 
 const referencedFiles = new Set([manifest.action.default_popup]);
 

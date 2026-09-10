@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const source = await readFile(new URL('../content.js', import.meta.url), 'utf8');
 
-function createHarness(initialStorage = {}, videoOverrides = [{}]) {
+function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'chrome') {
   const storage = { ...initialStorage };
   const listeners = {};
   const appendedElements = [];
@@ -26,10 +26,10 @@ function createHarness(initialStorage = {}, videoOverrides = [{}]) {
     querySelectorAll: (selector) => selector === 'video' ? videos : []
   };
 
-  const chrome = {
+  const webExtensionApi = {
     storage: {
       local: {
-        get: (_keys, callback) => callback({ ...storage }),
+        get: (_keys, callback) => callback ? callback({ ...storage }) : Promise.resolve({ ...storage }),
         remove: (key) => delete storage[key],
         set: (values) => Object.assign(storage, values)
       },
@@ -44,7 +44,7 @@ function createHarness(initialStorage = {}, videoOverrides = [{}]) {
     setTimeout: (callback) => callback()
   };
 
-  vm.runInNewContext(source, { chrome, document, window });
+  vm.runInNewContext(source, { [apiName]: webExtensionApi, document, window });
 
   return {
     dispatch(overrides = {}) {
@@ -109,6 +109,15 @@ test('controls the currently playing video instead of the first video', () => {
 
   assert.equal(harness.videos[0].currentTime, 100);
   assert.equal(harness.videos[1].currentTime, 105);
+});
+
+test('supports the Firefox promise-based WebExtensions API', async () => {
+  const harness = createHarness({ shortSeekSeconds: 9 }, [{}], 'browser');
+  await Promise.resolve();
+
+  harness.dispatch({ key: 'ArrowRight' });
+
+  assert.equal(harness.video.currentTime, 109);
 });
 
 test('clamps speed changes and resets playback speed', () => {
