@@ -20,7 +20,7 @@
 Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It controls the currently playing video, works entirely in your browser, and has no analytics, remote code, or account requirement.
 
 <p align="center">
-   <img src="assets/popup-preview.png" width="340" alt="Video Hotkeys popup showing the shortcut guide and enabled toggle">
+   <img src="assets/video-hotkeys-demo.gif" width="720" alt="Animated demo selecting the playing video, seeking forward, changing speed, and showing the extension's privacy promise">
 </p>
 
 ## Features
@@ -97,6 +97,7 @@ This command validates the manifest and packaged assets, then runs behavior test
 | `popup.html`, `popup.css`, `popup.js` | Toolbar guide and enabled toggle |
 | `manifest.json` | Chrome Manifest V3 configuration |
 | `scripts/validate.mjs` | Package and manifest validation |
+| `scripts/generate-demo.swift` | Reproducible animated listing demo (macOS) |
 | `test/` | Dependency-free behavior tests |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Security reports should follow [SECURITY.md](SECURITY.md).

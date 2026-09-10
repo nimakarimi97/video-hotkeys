@@ -48,4 +48,7 @@ for (const file of localAssets) {
   assert.ok((await stat(path.join(root, file))).isFile(), `missing popup asset: ${file}`);
 }
 
+const demo = await readProjectFile('assets/video-hotkeys-demo.gif');
+assert.equal(demo.subarray(0, 3).toString(), 'GIF', 'README demo must be a GIF');
+
 console.log(`Validated manifest ${manifest.version} and ${referencedFiles.size} packaged assets.`);
