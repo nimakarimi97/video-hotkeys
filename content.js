@@ -61,6 +61,10 @@ extensionApi.storage.onChanged.addListener((changes, areaName) => {
 });
 
 function createBadge(id, text, styleProperties, duration = 1200) {
+  if (!document.body)
+    return;
+
+
   const existing = document.getElementById(id);
   if (existing) {
     existing.remove();
@@ -176,15 +180,15 @@ function setVideoSpeed(video, nextSpeed) {
 }
 
 function isShiftQuestionShortcut(event) {
-  return event.shiftKey && (event.key === '?' || event.code === 'Slash');
+  return Boolean(event?.shiftKey && (event?.key === '?' || event?.code === 'Slash'));
 }
 
 window.addEventListener(
   'keydown',
   (event) => {
-    const key = event.key.toLowerCase();
+    const key = event?.key?.toLowerCase();
 
-    if (event.ctrlKey && event.shiftKey && key === 'u') {
+    if (event?.ctrlKey && event?.shiftKey && key === 'u') {
       isHotkeyEnabled = !isHotkeyEnabled;
       storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
       showToggleStatus(isHotkeyEnabled);

@@ -154,3 +154,11 @@ test('persists toggle changes and disables video shortcuts', () => {
   assert.equal(harness.storage.videoHotkeysEnabled, false);
   assert.equal(harness.video.currentTime, 100);
 });
+
+test('handles keydown events with missing or undefined key gracefully', () => {
+  const harness = createHarness();
+
+  assert.doesNotThrow(() => {
+    harness.dispatch({ key: undefined });
+  });
+});
