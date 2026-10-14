@@ -47,6 +47,61 @@ func drawKey(_ label: String, x: CGFloat, y: CGFloat, width: CGFloat = 92) {
   drawText(label, at: NSPoint(x: x + (width - textSize.width) / 2, y: y + 12), size: 15, color: ink, weight: .bold)
 }
 
+func drawLandscape(frame: Int) {
+  let sceneRect = NSRect(x: 48, y: 105, width: 624, height: 189)
+  NSGraphicsContext.saveGraphicsState()
+  NSBezierPath(roundedRect: sceneRect, xRadius: 4, yRadius: 4).addClip()
+
+  NSColor(calibratedRed: 0.42, green: 0.68, blue: 0.77, alpha: 1).setFill()
+  sceneRect.fill()
+
+  let drift = CGFloat(frame) * 0.35
+  let sunX = 514 + sin(Double(frame) * 0.04) * 3
+  NSColor(calibratedRed: 1, green: 0.82, blue: 0.55, alpha: 1).setFill()
+  NSBezierPath(ovalIn: NSRect(x: sunX, y: 232, width: 32, height: 32)).fill()
+
+  let distantRidge = NSBezierPath()
+  distantRidge.move(to: NSPoint(x: 48, y: 155))
+  distantRidge.line(to: NSPoint(x: 142, y: 231))
+  distantRidge.line(to: NSPoint(x: 208, y: 180))
+  distantRidge.line(to: NSPoint(x: 302, y: 248))
+  distantRidge.line(to: NSPoint(x: 402, y: 169))
+  distantRidge.line(to: NSPoint(x: 492, y: 224))
+  distantRidge.line(to: NSPoint(x: 574, y: 174))
+  distantRidge.line(to: NSPoint(x: 672, y: 221))
+  distantRidge.line(to: NSPoint(x: 672, y: 105))
+  distantRidge.line(to: NSPoint(x: 48, y: 105))
+  distantRidge.close()
+  NSColor(calibratedRed: 0.33, green: 0.52, blue: 0.57, alpha: 1).setFill()
+  distantRidge.fill()
+
+  let nearRidge = NSBezierPath()
+  nearRidge.move(to: NSPoint(x: 48, y: 142))
+  nearRidge.line(to: NSPoint(x: 130, y: 192))
+  nearRidge.line(to: NSPoint(x: 231, y: 153))
+  nearRidge.line(to: NSPoint(x: 339, y: 202))
+  nearRidge.line(to: NSPoint(x: 454, y: 150))
+  nearRidge.line(to: NSPoint(x: 566, y: 190))
+  nearRidge.line(to: NSPoint(x: 672, y: 148))
+  nearRidge.line(to: NSPoint(x: 672, y: 105))
+  nearRidge.line(to: NSPoint(x: 48, y: 105))
+  nearRidge.close()
+  NSColor(calibratedRed: 0.14, green: 0.35, blue: 0.32, alpha: 1).setFill()
+  nearRidge.fill()
+
+  NSColor(calibratedRed: 0.34, green: 0.62, blue: 0.56, alpha: 1).setStroke()
+  for index in 0..<7 {
+    let y = CGFloat(111 + index * 5)
+    let waterLine = NSBezierPath()
+    waterLine.lineWidth = 1.2
+    waterLine.move(to: NSPoint(x: 68 + (drift + CGFloat(index * 37)).truncatingRemainder(dividingBy: 82), y: y))
+    waterLine.curve(to: NSPoint(x: 650, y: y), controlPoint1: NSPoint(x: 280, y: y + 3), controlPoint2: NSPoint(x: 430, y: y - 2))
+    waterLine.stroke()
+  }
+
+  NSGraphicsContext.restoreGraphicsState()
+}
+
 for frame in 0..<frameCount {
   let bitmap = NSBitmapImageRep(
     bitmapDataPlanes: nil,
@@ -80,9 +135,7 @@ for frame in 0..<frameCount {
     videoProgress = 0.65
   }
 
-  let pulse = CGFloat((sin(Double(frame) * 0.35) + 1) / 2)
-  let sceneColor = NSColor(calibratedRed: 0.18 + pulse * 0.05, green: 0.32 + pulse * 0.04, blue: 0.27, alpha: 1)
-  fillRoundedRect(NSRect(x: 48, y: 105, width: 624, height: 189), radius: 4, color: sceneColor)
+  drawLandscape(frame: frame)
 
   muted.setFill()
   NSRect(x: 56, y: 87, width: 608, height: 5).fill()
@@ -94,7 +147,7 @@ for frame in 0..<frameCount {
   if frame >= 8 && frame < 25 {
     fillRoundedRect(NSRect(x: 238, y: 165, width: 244, height: 70), radius: 6, color: background.withAlphaComponent(0.96))
     drawKey("Right Arrow", x: 256, y: 179, width: 125)
-    drawText("+ 8 seconds", at: NSPoint(x: 396, y: 191), size: 16, color: ink, weight: .bold)
+    drawText("+ 5s", at: NSPoint(x: 396, y: 191), size: 16, color: ink, weight: .bold)
   } else if frame >= 25 && frame < 43 {
     fillRoundedRect(NSRect(x: 256, y: 165, width: 208, height: 70), radius: 6, color: background.withAlphaComponent(0.96))
     drawKey("Shift + >", x: 274, y: 179, width: 112)
