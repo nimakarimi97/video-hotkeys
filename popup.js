@@ -7,6 +7,7 @@ const enabledInput = document.getElementById('enabled');
 const shortSeekInput = document.getElementById('short-seek');
 const longSeekInput = document.getElementById('long-seek');
 const shortSeekLabel = document.getElementById('short-seek-label');
+const shortSeekBackLabel = document.getElementById('short-seek-back-label');
 const longSeekForwardLabel = document.getElementById('long-seek-forward-label');
 const longSeekBackLabel = document.getElementById('long-seek-back-label');
 const statusText = document.getElementById('status');
@@ -37,6 +38,9 @@ function renderSeekIntervals(shortSeconds, longSeconds) {
  shortSeekInput.value = shortSeconds;
  longSeekInput.value = longSeconds;
  shortSeekLabel.textContent = `Forward ${shortSeconds} seconds`;
+ if (shortSeekBackLabel) {
+  shortSeekBackLabel.textContent = `Back ${shortSeconds} seconds`;
+ }
  longSeekForwardLabel.textContent = `Forward ${longSeconds} seconds`;
  longSeekBackLabel.textContent = `Back ${longSeconds} seconds`;
 }
