@@ -24,7 +24,7 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
 
   const document = {
     addEventListener: (type, listener) => { listeners[`document:${type}`] = listener; },
-    body: { appendChild: (element) => appendedElements.push(element) },
+    body: { appendChild: (element) => { appendedElements.push(element); } },
     createElement: () => ({ style: {}, remove() { } }),
     getElementById: () => null,
     querySelectorAll: (selector) => selector === 'video' ? videos : []
@@ -45,6 +45,7 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
 
   const window = {
     addEventListener: (type, listener) => { listeners[type] = listener; },
+    innerWidth: 1200,
     setTimeout: (callback) => callback()
   };
 
@@ -68,6 +69,8 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
     },
     listeners,
     storage,
+    document,
+    appendedElements,
     video: videos[0],
     videos
   };
@@ -133,6 +136,36 @@ test('clamps speed changes and resets playback speed', () => {
 
   harness.dispatch({ code: 'Slash', key: '?', shiftKey: true });
   assert.equal(harness.video.playbackRate, 1);
+});
+
+test('places status badges in the fullscreen container aligned to the video', () => {
+  const harness = createHarness({}, [{
+    getBoundingClientRect: () => ({ top: 100, right: 900 })
+  }]);
+  let fullscreenBadge;
+  harness.document.fullscreenElement = {
+    appendChild: (element) => { fullscreenBadge = element; }
+  };
+
+  harness.dispatch({ key: '>', shiftKey: true });
+
+  assert.equal(fullscreenBadge.textContent, 'Speed 1.25x');
+  assert.match(fullscreenBadge.style.cssText, /top: 156px !important/);
+  assert.match(fullscreenBadge.style.cssText, /right: 316px !important/);
+});
+
+test('falls back to the video parent or body when placing status badges', () => {
+  const parentHarness = createHarness();
+  let parentBadge;
+  parentHarness.video.parentElement = {
+    appendChild: (element) => { parentBadge = element; }
+  };
+  parentHarness.dispatch({ key: '>', shiftKey: true });
+  assert.equal(parentBadge.textContent, 'Speed 1.25x');
+
+  const bodyHarness = createHarness({}, [{ paused: true }, { paused: true }]);
+  bodyHarness.dispatch({ ctrlKey: true, key: 'U', shiftKey: true });
+  assert.equal(bodyHarness.appendedElements[0].textContent, 'Video hotkeys OFF');
 });
 
 test('does not intercept shortcuts in editable controls', () => {

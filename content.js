@@ -60,10 +60,10 @@ extensionApi.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-function createBadge(id, text, styleProperties, duration = 1200) {
-  if (!document.body)
+function createBadge(id, text, styleProperties, duration = 1200, targetVideo = getPageVideo()) {
+  if (!document.body) {
     return;
-
+  }
 
   const existing = document.getElementById(id);
   if (existing) {
@@ -92,15 +92,32 @@ function createBadge(id, text, styleProperties, duration = 1200) {
   };
 
   const mergedStyles = { ...baseStyles, ...styleProperties };
+  const videoRect = targetVideo?.getBoundingClientRect?.();
+  if (videoRect && Number.isFinite(window.innerWidth)) {
+    const top = Number.parseFloat(mergedStyles.top);
+    const right = Number.parseFloat(mergedStyles.right);
+    if (Number.isFinite(top)) {
+      mergedStyles.top = `${videoRect.top + top}px !important`;
+    }
+    if (Number.isFinite(right)) {
+      mergedStyles.right = `${window.innerWidth - videoRect.right + right}px !important`;
+    }
+  }
+
   badge.style.cssText = Object.entries(mergedStyles)
     .map(([key, value]) => `${key}: ${value}`)
     .join('; ');
 
-  document.body.appendChild(badge);
+  const fullscreenElement = document.fullscreenElement ?? document.webkitFullscreenElement;
+  const preferredHost = fullscreenElement && fullscreenElement !== targetVideo
+    ? fullscreenElement
+    : targetVideo?.parentElement ?? document.body;
+  const host = typeof preferredHost.appendChild === 'function' ? preferredHost : document.body;
+  host.appendChild(badge);
   window.setTimeout(() => badge.remove(), duration);
 }
 
-function showToggleStatus(isEnabled) {
+function showToggleStatus(isEnabled, video) {
   createBadge(
     'video-hotkeys-toggle-status',
     `Video hotkeys ${isEnabled ? 'ON' : 'OFF'}`,
@@ -109,11 +126,12 @@ function showToggleStatus(isEnabled) {
       'right': '16px !important',
       'background': `${isEnabled ? '#0a7f44' : '#9b1c1c'} !important`,
     },
-    1300
+    1300,
+    video
   );
 }
 
-function showSpeedStatus(speed) {
+function showSpeedStatus(speed, video) {
   createBadge(
     'video-hotkeys-speed-status',
     `Speed ${speed.toFixed(2)}x`,
@@ -122,7 +140,8 @@ function showSpeedStatus(speed) {
       'right': '16px !important',
       'background': '#1f2937 !important',
     },
-    1200
+    1200,
+    video
   );
 }
 
@@ -141,7 +160,7 @@ function formatTime(totalSeconds) {
   return `${minutes}:${secStr}`;
 }
 
-function showSeekStatus(seconds, currentTime) {
+function showSeekStatus(seconds, currentTime, video) {
   const sign = seconds > 0 ? '+' : '';
   const timeText = Number.isFinite(currentTime) ? ` (${formatTime(currentTime)})` : '';
   createBadge(
@@ -152,11 +171,12 @@ function showSeekStatus(seconds, currentTime) {
       'right': '16px !important',
       'background': '#1f2937 !important',
     },
-    900
+    900,
+    video
   );
 }
 
-function showVolumeStatus(volume, isMuted) {
+function showVolumeStatus(volume, isMuted, video) {
   const text = isMuted || volume === 0 ? 'Volume: Muted' : `Volume: ${Math.round(volume * 100)}%`;
   createBadge(
     'video-hotkeys-volume-status',
@@ -166,11 +186,12 @@ function showVolumeStatus(volume, isMuted) {
       'right': '16px !important',
       'background': '#1f2937 !important',
     },
-    900
+    900,
+    video
   );
 }
 
-function showInfoStatus(text) {
+function showInfoStatus(text, video) {
   createBadge(
     'video-hotkeys-info-status',
     text,
@@ -179,7 +200,8 @@ function showInfoStatus(text) {
       'right': '16px !important',
       'background': '#1f2937 !important',
     },
-    900
+    900,
+    video
   );
 }
 
@@ -274,7 +296,7 @@ function clampSpeed(value) {
 function setVideoSpeed(video, nextSpeed) {
   const clamped = clampSpeed(nextSpeed);
   video.playbackRate = clamped;
-  showSpeedStatus(clamped);
+  showSpeedStatus(clamped, video);
 }
 
 function isShiftQuestionShortcut(event) {
@@ -289,7 +311,7 @@ window.addEventListener(
     if (event?.ctrlKey && event?.shiftKey && key === 'u') {
       isHotkeyEnabled = !isHotkeyEnabled;
       storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
-      showToggleStatus(isHotkeyEnabled);
+      showToggleStatus(isHotkeyEnabled, getPageVideo());
       event.preventDefault();
       return;
     }
@@ -312,7 +334,7 @@ window.addEventListener(
       if (video) {
         const delta = event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
         video.currentTime += delta;
-        showSeekStatus(delta, video.currentTime);
+        showSeekStatus(delta, video.currentTime, video);
         event.preventDefault();
       }
       return;
@@ -322,7 +344,7 @@ window.addEventListener(
       if (video) {
         video.muted = false;
         video.volume = Math.min(1, Math.round((video.volume + 0.05) * 100) / 100);
-        showVolumeStatus(video.volume, video.muted);
+        showVolumeStatus(video.volume, video.muted, video);
         event.preventDefault();
       }
       return;
@@ -331,7 +353,7 @@ window.addEventListener(
     if (event.shiftKey && event.key === 'ArrowDown') {
       if (video) {
         video.volume = Math.max(0, Math.round((video.volume - 0.05) * 100) / 100);
-        showVolumeStatus(video.volume, video.muted);
+        showVolumeStatus(video.volume, video.muted, video);
         event.preventDefault();
       }
       return;
@@ -365,7 +387,7 @@ window.addEventListener(
     if (event.key === 'ArrowRight') {
       if (video) {
         video.currentTime += shortSeekSeconds;
-        showSeekStatus(shortSeekSeconds, video.currentTime);
+        showSeekStatus(shortSeekSeconds, video.currentTime, video);
         event.preventDefault();
       }
       return;
@@ -374,7 +396,7 @@ window.addEventListener(
     if (event.key === 'ArrowLeft') {
       if (video) {
         video.currentTime -= shortSeekSeconds;
-        showSeekStatus(-shortSeekSeconds, video.currentTime);
+        showSeekStatus(-shortSeekSeconds, video.currentTime, video);
         event.preventDefault();
       }
       return;
@@ -384,10 +406,10 @@ window.addEventListener(
       if (video) {
         if (document.pictureInPictureElement) {
           document.exitPictureInPicture?.().catch?.(() => { });
-          showInfoStatus('PiP: Off');
+          showInfoStatus('PiP: Off', video);
         } else if (typeof video.requestPictureInPicture === 'function') {
           video.requestPictureInPicture().then?.(() => {
-            showInfoStatus('PiP: On');
+            showInfoStatus('PiP: On', video);
           })?.catch?.(() => { });
         }
         event.preventDefault();
@@ -401,12 +423,12 @@ window.addEventListener(
         if (fsElement) {
           if (document.exitFullscreen) document.exitFullscreen().catch?.(() => { });
           else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-          showInfoStatus('Fullscreen: Off');
+          showInfoStatus('Fullscreen: Off', video);
         } else {
           const targetEl = video.parentElement || video;
           if (targetEl.requestFullscreen) targetEl.requestFullscreen().catch?.(() => { });
           else if (targetEl.webkitRequestFullscreen) targetEl.webkitRequestFullscreen();
-          showInfoStatus('Fullscreen: On');
+          showInfoStatus('Fullscreen: On', video);
         }
         event.preventDefault();
       }
@@ -416,7 +438,7 @@ window.addEventListener(
     if (key === 'm' && !event.ctrlKey && !event.metaKey && !event.altKey) {
       if (video) {
         video.muted = !video.muted;
-        showVolumeStatus(video.volume, video.muted);
+        showVolumeStatus(video.volume, video.muted, video);
         event.preventDefault();
       }
       return;
