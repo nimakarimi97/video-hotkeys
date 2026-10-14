@@ -126,13 +126,56 @@ function showSpeedStatus(speed) {
   );
 }
 
-function showSeekStatus(seconds) {
+function formatTime(totalSeconds) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) {
+    return '0:00';
+  }
+  const total = Math.floor(totalSeconds);
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  const secStr = String(seconds).padStart(2, '0');
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${secStr}`;
+  }
+  return `${minutes}:${secStr}`;
+}
+
+function showSeekStatus(seconds, currentTime) {
   const sign = seconds > 0 ? '+' : '';
+  const timeText = Number.isFinite(currentTime) ? ` (${formatTime(currentTime)})` : '';
   createBadge(
     'video-hotkeys-seek-status',
-    `Seek ${sign}${seconds}s`,
+    `Seek ${sign}${seconds}s${timeText}`,
     {
       'top': '96px !important',
+      'right': '16px !important',
+      'background': '#1f2937 !important',
+    },
+    900
+  );
+}
+
+function showVolumeStatus(volume, isMuted) {
+  const text = isMuted || volume === 0 ? 'Volume: Muted' : `Volume: ${Math.round(volume * 100)}%`;
+  createBadge(
+    'video-hotkeys-volume-status',
+    text,
+    {
+      'top': '136px !important',
+      'right': '16px !important',
+      'background': '#1f2937 !important',
+    },
+    900
+  );
+}
+
+function showInfoStatus(text) {
+  createBadge(
+    'video-hotkeys-info-status',
+    text,
+    {
+      'top': '176px !important',
       'right': '16px !important',
       'background': '#1f2937 !important',
     },
@@ -205,7 +248,11 @@ function getPageVideo() {
     );
   }
 
-  return activeVideo && videos.includes(activeVideo) ? activeVideo : videos[0] ?? null;
+  if (activeVideo && videos.includes(activeVideo)) {
+    return activeVideo;
+  }
+
+  return videos.length === 1 ? videos[0] : null;
 }
 
 document.addEventListener('play', (event) => {
@@ -265,7 +312,26 @@ window.addEventListener(
       if (video) {
         const delta = event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
         video.currentTime += delta;
-        showSeekStatus(delta);
+        showSeekStatus(delta, video.currentTime);
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (event.shiftKey && event.key === 'ArrowUp') {
+      if (video) {
+        video.muted = false;
+        video.volume = Math.min(1, Math.round((video.volume + 0.05) * 100) / 100);
+        showVolumeStatus(video.volume, video.muted);
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (event.shiftKey && event.key === 'ArrowDown') {
+      if (video) {
+        video.volume = Math.max(0, Math.round((video.volume - 0.05) * 100) / 100);
+        showVolumeStatus(video.volume, video.muted);
         event.preventDefault();
       }
       return;
@@ -299,7 +365,7 @@ window.addEventListener(
     if (event.key === 'ArrowRight') {
       if (video) {
         video.currentTime += shortSeekSeconds;
-        showSeekStatus(shortSeekSeconds);
+        showSeekStatus(shortSeekSeconds, video.currentTime);
         event.preventDefault();
       }
       return;
@@ -308,7 +374,49 @@ window.addEventListener(
     if (event.key === 'ArrowLeft') {
       if (video) {
         video.currentTime -= shortSeekSeconds;
-        showSeekStatus(-shortSeekSeconds);
+        showSeekStatus(-shortSeekSeconds, video.currentTime);
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (key === 'p' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (video) {
+        if (document.pictureInPictureElement) {
+          document.exitPictureInPicture?.().catch?.(() => {});
+          showInfoStatus('PiP: Off');
+        } else if (typeof video.requestPictureInPicture === 'function') {
+          video.requestPictureInPicture().then?.(() => {
+            showInfoStatus('PiP: On');
+          })?.catch?.(() => {});
+        }
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (key === 'f' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (video) {
+        const fsElement = document.fullscreenElement ?? document.webkitFullscreenElement;
+        if (fsElement) {
+          if (document.exitFullscreen) document.exitFullscreen().catch?.(() => {});
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          showInfoStatus('Fullscreen: Off');
+        } else {
+          const targetEl = video.parentElement || video;
+          if (targetEl.requestFullscreen) targetEl.requestFullscreen().catch?.(() => {});
+          else if (targetEl.webkitRequestFullscreen) targetEl.webkitRequestFullscreen();
+          showInfoStatus('Fullscreen: On');
+        }
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (key === 'm' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (video) {
+        video.muted = !video.muted;
+        showVolumeStatus(video.volume, video.muted);
         event.preventDefault();
       }
       return;

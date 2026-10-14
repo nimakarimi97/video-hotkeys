@@ -14,7 +14,11 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
     ended: false,
     paused: true,
     playbackRate: 1,
+    volume: 1,
+    muted: false,
     tagName: 'VIDEO',
+    requestPictureInPicture: async () => {},
+    requestFullscreen: async () => {},
     ...overrides
   }));
 
@@ -170,4 +174,41 @@ test('handles keydown events with missing or undefined key gracefully', () => {
   assert.doesNotThrow(() => {
     harness.dispatch({ key: undefined });
   });
+});
+
+test('controls volume and toggles mute', () => {
+  const harness = createHarness();
+
+  harness.dispatch({ key: 'ArrowDown', shiftKey: true });
+  assert.equal(harness.video.volume, 0.95);
+
+  harness.dispatch({ key: 'ArrowUp', shiftKey: true });
+  assert.equal(harness.video.volume, 1);
+
+  harness.dispatch({ key: 'm' });
+  assert.equal(harness.video.muted, true);
+});
+
+test('toggles Picture-in-Picture and Fullscreen', () => {
+  let pipCalled = false;
+  let fsCalled = false;
+  const harness = createHarness({}, [{
+    requestPictureInPicture: async () => { pipCalled = true; },
+    parentElement: { requestFullscreen: async () => { fsCalled = true; } }
+  }]);
+
+  harness.dispatch({ key: 'p' });
+  assert.equal(pipCalled, true);
+
+  harness.dispatch({ key: 'f' });
+  assert.equal(fsCalled, true);
+});
+
+test('does not intercept shortcuts when multiple paused videos exist and none was active', () => {
+  const harness = createHarness({}, [{ paused: true }, { paused: true }]);
+
+  const event = harness.dispatch({ key: 'ArrowRight' });
+  assert.equal(event.defaultPrevented, undefined);
+  assert.equal(harness.videos[0].currentTime, 100);
+  assert.equal(harness.videos[1].currentTime, 100);
 });
