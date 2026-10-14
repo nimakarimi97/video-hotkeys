@@ -9,240 +9,259 @@ let longSeekSeconds = 15;
 let activeVideo = null;
 
 function storageGet(keys, callback) {
- if (globalThis.browser) {
-  extensionApi.storage.local.get(keys).then(callback);
- } else {
-  extensionApi.storage.local.get(keys, callback);
- }
+  if (globalThis.browser) {
+    extensionApi.storage.local.get(keys).then(callback);
+  } else {
+    extensionApi.storage.local.get(keys, callback);
+  }
 }
 
 function storageSet(values) {
- extensionApi.storage.local.set(values);
+  extensionApi.storage.local.set(values);
 }
 
 function storageRemove(key) {
- extensionApi.storage.local.remove(key);
+  extensionApi.storage.local.remove(key);
 }
 
 function normalizeSeekInterval(value, fallback) {
- const seconds = Number(value);
- return Number.isFinite(seconds) && seconds >= 1 && seconds <= 600 ? seconds : fallback;
+  const seconds = Number(value);
+  return Number.isFinite(seconds) && seconds >= 1 && seconds <= 600 ? seconds : fallback;
 }
 
 storageGet(
- [TOGGLE_STORAGE_KEY, LEGACY_TOGGLE_STORAGE_KEY, SHORT_SEEK_STORAGE_KEY, LONG_SEEK_STORAGE_KEY],
- (result) => {
-  const storedValue = result[TOGGLE_STORAGE_KEY] ?? result[LEGACY_TOGGLE_STORAGE_KEY];
-  isHotkeyEnabled = storedValue === undefined ? true : Boolean(storedValue);
-   shortSeekSeconds = normalizeSeekInterval(result[SHORT_SEEK_STORAGE_KEY], 5);
-   longSeekSeconds = normalizeSeekInterval(result[LONG_SEEK_STORAGE_KEY], 15);
+  [TOGGLE_STORAGE_KEY, LEGACY_TOGGLE_STORAGE_KEY, SHORT_SEEK_STORAGE_KEY, LONG_SEEK_STORAGE_KEY],
+  (result) => {
+    const storedValue = result[TOGGLE_STORAGE_KEY] ?? result[LEGACY_TOGGLE_STORAGE_KEY];
+    isHotkeyEnabled = storedValue === undefined ? true : Boolean(storedValue);
+    shortSeekSeconds = normalizeSeekInterval(result[SHORT_SEEK_STORAGE_KEY], 5);
+    longSeekSeconds = normalizeSeekInterval(result[LONG_SEEK_STORAGE_KEY], 15);
 
-  if (result[TOGGLE_STORAGE_KEY] === undefined && result[LEGACY_TOGGLE_STORAGE_KEY] !== undefined) {
-   storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
-   storageRemove(LEGACY_TOGGLE_STORAGE_KEY);
+    if (result[TOGGLE_STORAGE_KEY] === undefined && result[LEGACY_TOGGLE_STORAGE_KEY] !== undefined) {
+      storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
+      storageRemove(LEGACY_TOGGLE_STORAGE_KEY);
+    }
   }
- }
 );
 
 extensionApi.storage.onChanged.addListener((changes, areaName) => {
- if (areaName !== 'local') {
-  return;
- }
+  if (areaName !== 'local') {
+    return;
+  }
 
- if (changes[TOGGLE_STORAGE_KEY]) {
-  isHotkeyEnabled = Boolean(changes[TOGGLE_STORAGE_KEY].newValue);
- }
- if (changes[SHORT_SEEK_STORAGE_KEY]) {
-  shortSeekSeconds = normalizeSeekInterval(changes[SHORT_SEEK_STORAGE_KEY].newValue, 5);
- }
- if (changes[LONG_SEEK_STORAGE_KEY]) {
-  longSeekSeconds = normalizeSeekInterval(changes[LONG_SEEK_STORAGE_KEY].newValue, 15);
- }
+  if (changes[TOGGLE_STORAGE_KEY]) {
+    isHotkeyEnabled = Boolean(changes[TOGGLE_STORAGE_KEY].newValue);
+  }
+  if (changes[SHORT_SEEK_STORAGE_KEY]) {
+    shortSeekSeconds = normalizeSeekInterval(changes[SHORT_SEEK_STORAGE_KEY].newValue, 5);
+  }
+  if (changes[LONG_SEEK_STORAGE_KEY]) {
+    longSeekSeconds = normalizeSeekInterval(changes[LONG_SEEK_STORAGE_KEY].newValue, 15);
+  }
 });
 
+function createBadge(id, text, styleProperties, duration = 1200) {
+  const existing = document.getElementById(id);
+  if (existing) {
+    existing.remove();
+  }
+
+  const badge = document.createElement('div');
+  badge.id = id;
+  badge.textContent = text;
+
+  const baseStyles = {
+    'position': 'fixed !important',
+    'z-index': '2147483647 !important',
+    'padding': '8px 12px !important',
+    'border-radius': '8px !important',
+    'font-family': 'system-ui, -apple-system, Segoe UI, sans-serif !important',
+    'font-size': '12px !important',
+    'font-weight': '600 !important',
+    'color': '#fff !important',
+    'box-shadow': '0 8px 24px rgba(0, 0, 0, 0.2) !important',
+    'pointer-events': 'none !important',
+    'margin': '0 !important',
+    'border': 'none !important',
+    'display': 'block !important',
+    'visibility': 'visible !important',
+  };
+
+  const mergedStyles = { ...baseStyles, ...styleProperties };
+  badge.style.cssText = Object.entries(mergedStyles)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('; ');
+
+  document.body.appendChild(badge);
+  window.setTimeout(() => badge.remove(), duration);
+}
+
 function showToggleStatus(isEnabled) {
- const existing = document.getElementById('video-hotkeys-toggle-status');
- if (existing) {
-  existing.remove();
- }
-
- const badge = document.createElement('div');
- badge.id = 'video-hotkeys-toggle-status';
- badge.textContent = `Video hotkeys ${isEnabled ? 'ON' : 'OFF'}`;
- badge.style.position = 'fixed';
- badge.style.top = '16px';
- badge.style.right = '16px';
- badge.style.zIndex = '2147483647';
- badge.style.padding = '8px 12px';
- badge.style.borderRadius = '8px';
- badge.style.fontFamily = 'system-ui, -apple-system, Segoe UI, sans-serif';
- badge.style.fontSize = '12px';
- badge.style.fontWeight = '600';
- badge.style.background = isEnabled ? '#0a7f44' : '#9b1c1c';
- badge.style.color = '#fff';
- badge.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
-
- document.body.appendChild(badge);
- window.setTimeout(() => badge.remove(), 1300);
+  createBadge(
+    'video-hotkeys-toggle-status',
+    `Video hotkeys ${isEnabled ? 'ON' : 'OFF'}`,
+    {
+      'top': '16px !important',
+      'right': '16px !important',
+      'background': `${isEnabled ? '#0a7f44' : '#9b1c1c'} !important`,
+    },
+    1300
+  );
 }
 
 function showSpeedStatus(speed) {
- const existing = document.getElementById('video-hotkeys-speed-status');
- if (existing) {
-  existing.remove();
- }
-
- const badge = document.createElement('div');
- badge.id = 'video-hotkeys-speed-status';
- badge.textContent = `Speed ${speed.toFixed(2)}x`;
- badge.style.position = 'fixed';
- badge.style.top = '56px';
- badge.style.right = '16px';
- badge.style.zIndex = '2147483647';
- badge.style.padding = '8px 12px';
- badge.style.borderRadius = '8px';
- badge.style.fontFamily = 'system-ui, -apple-system, Segoe UI, sans-serif';
- badge.style.fontSize = '12px';
- badge.style.fontWeight = '600';
- badge.style.background = '#1f2937';
- badge.style.color = '#fff';
- badge.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
-
- document.body.appendChild(badge);
- window.setTimeout(() => badge.remove(), 1200);
+  createBadge(
+    'video-hotkeys-speed-status',
+    `Speed ${speed.toFixed(2)}x`,
+    {
+      'top': '56px !important',
+      'right': '16px !important',
+      'background': '#1f2937 !important',
+    },
+    1200
+  );
 }
 
 function isPlaying(video) {
- return !video.paused && !video.ended;
+  return !video.paused && !video.ended;
 }
 
 function getVisibleArea(video) {
- const rect = video.getBoundingClientRect?.();
- if (!rect || rect.width <= 0 || rect.height <= 0) {
-  return 0;
- }
+  const rect = video.getBoundingClientRect?.();
+  if (!rect || rect.width <= 0 || rect.height <= 0) {
+    return 0;
+  }
 
- const visibleWidth = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
- const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
- return visibleWidth * visibleHeight;
+  const visibleWidth = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
+  const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+  return visibleWidth * visibleHeight;
 }
 
 function getPageVideo() {
- const videos = Array.from(document.querySelectorAll('video'));
- if (activeVideo && videos.includes(activeVideo) && isPlaying(activeVideo)) {
-  return activeVideo;
- }
+  const videos = Array.from(document.querySelectorAll('video'));
+  if (activeVideo && videos.includes(activeVideo) && isPlaying(activeVideo)) {
+    return activeVideo;
+  }
 
- const playingVideos = videos.filter(isPlaying);
- if (playingVideos.length > 0) {
-  return playingVideos.reduce((best, video) =>
-   getVisibleArea(video) > getVisibleArea(best) ? video : best
-  );
- }
+  const playingVideos = videos.filter(isPlaying);
+  if (playingVideos.length > 0) {
+    return playingVideos.reduce((best, video) =>
+      getVisibleArea(video) > getVisibleArea(best) ? video : best
+    );
+  }
 
- return activeVideo && videos.includes(activeVideo) ? activeVideo : videos[0] ?? null;
+  return activeVideo && videos.includes(activeVideo) ? activeVideo : videos[0] ?? null;
 }
 
 document.addEventListener('play', (event) => {
- if (event.target?.tagName === 'VIDEO') {
-  activeVideo = event.target;
- }
+  if (event.target?.tagName === 'VIDEO') {
+    activeVideo = event.target;
+  }
 }, true);
 
 document.addEventListener('pointerdown', (event) => {
- if (event.target?.tagName === 'VIDEO') {
-  activeVideo = event.target;
- }
+  if (event.target?.tagName === 'VIDEO') {
+    activeVideo = event.target;
+  }
 }, true);
 
 function clampSpeed(value) {
- return Math.min(4, Math.max(0.5, value));
+  return Math.min(4, Math.max(0.5, value));
 }
 
 function setVideoSpeed(video, nextSpeed) {
- const clamped = clampSpeed(nextSpeed);
- video.playbackRate = clamped;
- showSpeedStatus(clamped);
+  const clamped = clampSpeed(nextSpeed);
+  video.playbackRate = clamped;
+  showSpeedStatus(clamped);
 }
 
 function isShiftQuestionShortcut(event) {
- return event.shiftKey && (event.key === '?' || event.code === 'Slash');
+  return event.shiftKey && (event.key === '?' || event.code === 'Slash');
 }
 
 window.addEventListener(
- 'keydown',
- (event) => {
-  const key = event.key.toLowerCase();
+  'keydown',
+  (event) => {
+    const key = event.key.toLowerCase();
 
-  if (event.ctrlKey && event.shiftKey && key === 'u') {
-   isHotkeyEnabled = !isHotkeyEnabled;
-   storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
-   showToggleStatus(isHotkeyEnabled);
-   event.preventDefault();
-   return;
-  }
+    if (event.ctrlKey && event.shiftKey && key === 'u') {
+      isHotkeyEnabled = !isHotkeyEnabled;
+      storageSet({ [TOGGLE_STORAGE_KEY]: isHotkeyEnabled });
+      showToggleStatus(isHotkeyEnabled);
+      event.preventDefault();
+      return;
+    }
 
-  if (!isHotkeyEnabled) {
-   return;
-  }
+    if (!isHotkeyEnabled) {
+      return;
+    }
 
-  const target = event.target;
-  const tagName = target?.tagName;
-  const isTypingField =
-   tagName === 'INPUT' ||
-   tagName === 'TEXTAREA' ||
-   tagName === 'SELECT' ||
-   target?.isContentEditable ||
-   target?.getAttribute?.('role') === 'textbox';
+    const target = event.target;
+    const tagName = target?.tagName;
+    const isTypingField =
+      tagName === 'INPUT' ||
+      tagName === 'TEXTAREA' ||
+      tagName === 'SELECT' ||
+      target?.isContentEditable ||
+      target?.getAttribute?.('role') === 'textbox';
 
-  if (isTypingField) {
-   return;
-  }
+    if (isTypingField) {
+      return;
+    }
 
-  const video = getPageVideo();
+    const video = getPageVideo();
 
-  if (
-   (event.metaKey || event.ctrlKey) &&
-   (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
-  ) {
-   if (video) {
-      video.currentTime += event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
-    event.preventDefault();
-   }
-   return;
-  }
+    if (
+      (event.metaKey || event.ctrlKey) &&
+      (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+    ) {
+      if (video) {
+        video.currentTime += event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
+        event.preventDefault();
+      }
+      return;
+    }
 
-  if (event.shiftKey && event.key === '>') {
-   if (video) {
-    setVideoSpeed(video, video.playbackRate + 0.25);
-    event.preventDefault();
-   }
-   return;
-  }
+    if (event.shiftKey && event.key === '>') {
+      if (video) {
+        setVideoSpeed(video, video.playbackRate + 0.25);
+        event.preventDefault();
+      }
+      return;
+    }
 
-  if (event.shiftKey && event.key === '<') {
-   if (video) {
-    setVideoSpeed(video, video.playbackRate - 0.25);
-    event.preventDefault();
-   }
-   return;
-  }
+    if (event.shiftKey && event.key === '<') {
+      if (video) {
+        setVideoSpeed(video, video.playbackRate - 0.25);
+        event.preventDefault();
+      }
+      return;
+    }
 
-  if (isShiftQuestionShortcut(event)) {
-   if (video) {
-    setVideoSpeed(video, 1);
-    event.preventDefault();
-    event.stopPropagation();
-   }
-   return;
-  }
+    if (isShiftQuestionShortcut(event)) {
+      if (video) {
+        setVideoSpeed(video, 1);
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
 
-  if (event.key === 'ArrowRight') {
-   if (video) {
-      video.currentTime += shortSeekSeconds;
-    event.preventDefault();
-   }
-  }
- },
- true
+    if (event.key === 'ArrowRight') {
+      if (video) {
+        video.currentTime += shortSeekSeconds;
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (event.key === 'ArrowLeft') {
+      if (video) {
+        video.currentTime -= shortSeekSeconds;
+        event.preventDefault();
+      }
+      return;
+    }
+  },
+  true
 );
