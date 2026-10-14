@@ -2,6 +2,23 @@
 
 All notable changes to Video Hotkeys are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2026-10-14
+
+### Added
+
+- Picture-in-Picture (`P`) and Fullscreen (`F`) keyboard shortcuts.
+- Volume adjustment (`Shift + Up/Down`) and mute/unmute toggle (`M`).
+- On-screen display (OSD) status badges for seeking time, volume, and player state.
+- Short-seek backward (`Left Arrow`) shortcut and guide entry in the popup.
+- Shadow DOM traversal for web-component video players.
+- Embedded video support across iframes with `all_frames: true`.
+- Player controls section in popup guide.
+
+### Changed
+
+- Enhanced editable field detection to support nested `contenteditable` elements.
+- Improved video selection logic to avoid hijacking shortcuts on pages with multiple inactive videos.
+
 ## [1.5.0] - 2026-09-10
 
 ### Added
