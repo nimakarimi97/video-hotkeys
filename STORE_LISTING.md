@@ -6,20 +6,37 @@ Control the video you're watching with private, customizable keyboard shortcuts.
 
 ## Full Description
 
-Video Hotkeys gives you fast keyboard controls for HTML5 video in Chrome and Firefox.
+Video Hotkeys gives you fast, lightweight keyboard controls for HTML5 videos across the web in Chrome and Firefox.
 
-It automatically targets the currently playing video, even when a page contains several video elements. Seek forward with the Right Arrow, jump forward or back with a platform modifier, and change playback speed without opening the player controls. Short and long seek intervals are customizable, with useful 5 and 15 second defaults.
+Control the video you're watching without clicking the player controls. Seek forward and backward with arrow keys, change playback speed, toggle Picture-in-Picture (PiP), switch fullscreen, and adjust volume. It automatically targets the active or playing video, even on pages with multiple videos, iframes, or open shadow DOM components.
 
-Privacy is deliberately simple: one local-storage permission and zero network requests. Video Hotkeys has no analytics, tracking, remote code, account, or data collection. Your enabled state and seek preferences stay in your browser.
+Short and long seek intervals are fully customizable, with useful 5 and 15 second defaults, accompanied by clear on-screen display (OSD) feedback.
+
+Privacy is deliberately simple: one local-storage permission and zero network requests. Video Hotkeys has no analytics, tracking, remote code, account, or data collection. Your preferences stay entirely in your browser.
 
 Highlights:
 
-- Selects the currently playing video
-- Custom short and long seek intervals
-- Playback speed from 0.5x to 4x
-- Chrome and Firefox WebExtensions support
-- No analytics, tracking, or network requests
-- One permission: local storage
+- Smart targeting: Automatically controls the currently playing video
+- Custom seek intervals: Configurable short and long seek steps (default 5s & 15s)
+- On-Screen Display (OSD): Visual badges for seeking, speed, volume, and status
+- Playback speed: Fine-tune from 0.5x to 4x in 0.25x steps
+- Picture-in-Picture (PiP): Instant toggle with P
+- Fullscreen mode: One-key toggle with F
+- Volume & Mute: Adjust with Shift + Up/Down, mute with M
+- Embedded video support: Works across iframes and shadow DOM
+- 100% Private: 1 permission (`storage`), zero analytics, zero network requests
+
+Shortcuts:
+
+- Forward / Back (Short): Right Arrow / Left Arrow
+- Forward / Back (Long): Cmd/Ctrl + Right Arrow / Left Arrow
+- Speed Up / Down: Shift + > / Shift + <
+- Reset Speed: Shift + ?
+- Picture-in-Picture: P
+- Fullscreen: F
+- Volume Up / Down: Shift + Up / Shift + Down
+- Mute / Unmute: M
+- Toggle Hotkeys On/Off: Ctrl + Shift + U
 
 ## Demo
 

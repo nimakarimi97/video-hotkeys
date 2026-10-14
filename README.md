@@ -26,25 +26,32 @@ Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It cont
 ## Features
 
 - Seek forward or backward without opening player controls.
-- Control the currently playing video on pages containing multiple videos.
+- Control the currently playing video on pages containing multiple videos, iframes, or shadow DOM players.
 - Customize short and long seek intervals, with sensible `5` and `15` second defaults.
 - Adjust playback speed from `0.5x` to `4x` in `0.25x` steps.
+- Toggle Picture-in-Picture (`P`) and Fullscreen (`F`) instantly.
+- Control volume with `Shift + Up/Down` and mute/unmute with `M`.
+- Visual on-screen feedback (OSD) for seeking, speed, volume, and hotkey status.
 - Toggle all hotkeys from the toolbar popup or keyboard.
-- Preserve the enabled setting between browser sessions.
+- Preserve preferences between browser sessions.
 - Avoid intercepting shortcuts while you type in editable controls.
-- See compact on-page feedback after toggling or changing speed.
 
 ## Shortcuts
 
 | Action | macOS | Windows / Linux |
 | --- | --- | --- |
-| Forward 5 seconds | `Right Arrow` | `Right Arrow` |
-| Forward 15 seconds | `Command + Right Arrow` | `Ctrl + Right Arrow` |
-| Back 15 seconds | `Command + Left Arrow` | `Ctrl + Left Arrow` |
+| Forward short seek (default 5s) | `Right Arrow` | `Right Arrow` |
+| Back short seek (default 5s) | `Left Arrow` | `Left Arrow` |
+| Forward long seek (default 15s) | `Command + Right Arrow` | `Ctrl + Right Arrow` |
+| Back long seek (default 15s) | `Command + Left Arrow` | `Ctrl + Left Arrow` |
 | Increase speed | `Shift + >` | `Shift + >` |
 | Decrease speed | `Shift + <` | `Shift + <` |
 | Reset speed to `1x` | `Shift + ?` | `Shift + ?` |
-| Toggle hotkeys | `Ctrl + Shift + U` | `Ctrl + Shift + U` |
+| Picture-in-Picture | `P` | `P` |
+| Fullscreen | `F` | `F` |
+| Volume Up / Down | `Shift + Up` / `Down` | `Shift + Up` / `Down` |
+| Mute / Unmute | `M` | `M` |
+| Toggle hotkeys on/off | `Ctrl + Shift + U` | `Ctrl + Shift + U` |
 
 Some websites or operating systems may already use one of these shortcuts. Open the extension popup to disable Video Hotkeys temporarily if a conflict occurs.
 
