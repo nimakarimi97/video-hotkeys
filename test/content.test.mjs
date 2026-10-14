@@ -4,6 +4,7 @@ import test from 'node:test';
 import vm from 'node:vm';
 
 const source = await readFile(new URL('../content.js', import.meta.url), 'utf8');
+const utilitiesSource = await readFile(new URL('../content-utils.js', import.meta.url), 'utf8');
 
 function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'chrome') {
   const storage = { ...initialStorage };
@@ -44,12 +45,16 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
   };
 
   const window = {
-    addEventListener: (type, listener) => { listeners[type] = listener; },
+    addEventListener: (type, listener, capture = false) => {
+      listeners[`window:${type}:${capture ? 'capture' : 'bubble'}`] = listener;
+    },
     innerWidth: 1200,
     setTimeout: (callback) => callback()
   };
 
-  vm.runInNewContext(source, { [apiName]: webExtensionApi, document, window });
+  const context = { [apiName]: webExtensionApi, document, window };
+  vm.runInNewContext(utilitiesSource, context);
+  vm.runInNewContext(source, context);
 
   return {
     dispatch(overrides = {}) {
@@ -64,7 +69,11 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
         target: { tagName: 'DIV', isContentEditable: false },
         ...overrides
       };
-      listeners.keydown(event);
+      listeners['window:keydown:capture'](event);
+      if (overrides.siteHandled) {
+        event.preventDefault();
+      }
+      listeners['window:keydown:bubble'](event);
       return event;
     },
     listeners,
@@ -212,14 +221,23 @@ test('handles keydown events with missing or undefined key gracefully', () => {
 test('controls volume and toggles mute', () => {
   const harness = createHarness();
 
-  harness.dispatch({ key: 'ArrowDown', shiftKey: true });
+  harness.dispatch({ key: 'ArrowDown' });
   assert.equal(harness.video.volume, 0.95);
 
-  harness.dispatch({ key: 'ArrowUp', shiftKey: true });
+  harness.dispatch({ key: 'ArrowUp' });
   assert.equal(harness.video.volume, 1);
 
   harness.dispatch({ key: 'm' });
   assert.equal(harness.video.muted, true);
+});
+
+test('does not change volume with shifted arrow keys', () => {
+  const harness = createHarness();
+
+  harness.dispatch({ key: 'ArrowDown', shiftKey: true });
+  harness.dispatch({ key: 'ArrowUp', shiftKey: true });
+
+  assert.equal(harness.video.volume, 1);
 });
 
 test('toggles Picture-in-Picture and Fullscreen', () => {
@@ -235,6 +253,47 @@ test('toggles Picture-in-Picture and Fullscreen', () => {
 
   harness.dispatch({ key: 'f' });
   assert.equal(fsCalled, true);
+});
+
+test('leaves fullscreen to the site when its F shortcut handles the event', () => {
+  let fsCalled = false;
+  const harness = createHarness({}, [{
+    parentElement: { requestFullscreen: async () => { fsCalled = true; } }
+  }]);
+
+  const event = harness.dispatch({ key: 'f', siteHandled: true });
+
+  assert.equal(fsCalled, false);
+  assert.equal(event.defaultPrevented, true);
+});
+
+test('leaves mute, PiP, and volume shortcuts to the site when handled', () => {
+  let pipCalled = false;
+  const harness = createHarness({}, [{
+    requestPictureInPicture: async () => { pipCalled = true; }
+  }]);
+
+  harness.dispatch({ key: 'm', siteHandled: true });
+  harness.dispatch({ key: 'p', siteHandled: true });
+  harness.dispatch({ key: 'ArrowUp', siteHandled: true });
+
+  assert.equal(harness.video.muted, false);
+  assert.equal(pipCalled, false);
+  assert.equal(harness.video.volume, 1);
+});
+
+test('uses the YouTube player shell for the fullscreen fallback', () => {
+  let fullscreenTarget;
+  const harness = createHarness({}, [{
+    closest: (selector) => selector === '.html5-video-player'
+      ? { requestFullscreen: async () => { fullscreenTarget = 'player'; } }
+      : null,
+    parentElement: { requestFullscreen: async () => { fullscreenTarget = 'video'; } }
+  }]);
+
+  harness.dispatch({ key: 'f' });
+
+  assert.equal(fullscreenTarget, 'player');
 });
 
 test('does not intercept shortcuts when multiple paused videos exist and none was active', () => {

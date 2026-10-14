@@ -22,7 +22,7 @@ Highlights:
 - Playback speed: Fine-tune from 0.5x to 4x in 0.25x steps
 - Picture-in-Picture (PiP): Instant toggle with P
 - Fullscreen mode: One-key toggle with F
-- Volume & Mute: Adjust with Shift + Up/Down, mute with M
+- Volume & Mute: Adjust with Up/Down, mute with M
 - Embedded video support: Works across iframes and shadow DOM
 - 100% Private: 1 permission (`storage`), zero analytics, zero network requests
 
@@ -34,7 +34,7 @@ Shortcuts:
 - Reset Speed: Shift + ?
 - Picture-in-Picture: P
 - Fullscreen: F
-- Volume Up / Down: Shift + Up / Shift + Down
+- Volume Up / Down: Up / Down
 - Mute / Unmute: M
 - Toggle Hotkeys On/Off: Ctrl + Shift + U
 

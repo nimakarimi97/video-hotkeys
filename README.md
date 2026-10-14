@@ -30,7 +30,7 @@ Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It cont
 - Customize short and long seek intervals, with sensible `5` and `15` second defaults.
 - Adjust playback speed from `0.5x` to `4x` in `0.25x` steps.
 - Toggle Picture-in-Picture (`P`) and Fullscreen (`F`) instantly.
-- Control volume with `Shift + Up/Down` and mute/unmute with `M`.
+- Control volume with `Up/Down` and mute/unmute with `M`.
 - Visual on-screen feedback (OSD) for seeking, speed, volume, and hotkey status.
 - Toggle all hotkeys from the toolbar popup or keyboard.
 - Preserve preferences between browser sessions.
@@ -49,7 +49,7 @@ Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It cont
 | Reset speed to `1x` | `Shift + ?` | `Shift + ?` |
 | Picture-in-Picture | `P` | `P` |
 | Fullscreen | `F` | `F` |
-| Volume Up / Down | `Shift + Up` / `Down` | `Shift + Up` / `Down` |
+| Volume Up / Down | `Up` / `Down` | `Up` / `Down` |
 | Mute / Unmute | `M` | `M` |
 | Toggle hotkeys on/off | `Ctrl + Shift + U` | `Ctrl + Shift + U` |
 
@@ -96,11 +96,12 @@ The project has no runtime or development dependencies. Node.js 20 or newer is u
 npm run check
 ```
 
-This command validates the manifest and packaged assets, then runs behavior tests against the real content script. The same check runs in GitHub Actions for every push and pull request.
+This command validates the manifest and packaged assets, then runs behavior tests against the content scripts. The same check runs in GitHub Actions for every push and pull request.
 
 | Path | Purpose |
 | --- | --- |
 | `content.js` | Page-level keyboard and video controls |
+| `content-utils.js` | Shared video and shortcut helpers |
 | `popup.html`, `popup.css`, `popup.js` | Toolbar guide and enabled toggle |
 | `manifest.json` | Chrome Manifest V3 configuration |
 | `scripts/validate.mjs` | Package and manifest validation |
