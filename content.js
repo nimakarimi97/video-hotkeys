@@ -126,6 +126,20 @@ function showSpeedStatus(speed) {
   );
 }
 
+function showSeekStatus(seconds) {
+  const sign = seconds > 0 ? '+' : '';
+  createBadge(
+    'video-hotkeys-seek-status',
+    `Seek ${sign}${seconds}s`,
+    {
+      'top': '96px !important',
+      'right': '16px !important',
+      'background': '#1f2937 !important',
+    },
+    900
+  );
+}
+
 function isPlaying(video) {
   return !video.paused && !video.ended;
 }
@@ -141,8 +155,45 @@ function getVisibleArea(video) {
   return visibleWidth * visibleHeight;
 }
 
+function isTypingTarget(target) {
+  if (!target) return false;
+  const tagName = target.tagName;
+  if (
+    tagName === 'INPUT' ||
+    tagName === 'TEXTAREA' ||
+    tagName === 'SELECT' ||
+    target.isContentEditable ||
+    target.getAttribute?.('role') === 'textbox'
+  ) {
+    return true;
+  }
+  if (typeof target.closest === 'function') {
+    return Boolean(
+      target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]')
+    );
+  }
+  return false;
+}
+
+function getAllVideos(root = document) {
+  const videos = [];
+  if (!root?.querySelectorAll) return videos;
+
+  videos.push(...Array.from(root.querySelectorAll('video')));
+
+  // Traverse open shadow roots
+  const allElements = root.querySelectorAll('*');
+  for (const el of allElements) {
+    if (el.shadowRoot) {
+      videos.push(...getAllVideos(el.shadowRoot));
+    }
+  }
+
+  return videos;
+}
+
 function getPageVideo() {
-  const videos = Array.from(document.querySelectorAll('video'));
+  const videos = getAllVideos();
   if (activeVideo && videos.includes(activeVideo) && isPlaying(activeVideo)) {
     return activeVideo;
   }
@@ -201,15 +252,7 @@ window.addEventListener(
     }
 
     const target = event.target;
-    const tagName = target?.tagName;
-    const isTypingField =
-      tagName === 'INPUT' ||
-      tagName === 'TEXTAREA' ||
-      tagName === 'SELECT' ||
-      target?.isContentEditable ||
-      target?.getAttribute?.('role') === 'textbox';
-
-    if (isTypingField) {
+    if (isTypingTarget(target)) {
       return;
     }
 
@@ -220,7 +263,9 @@ window.addEventListener(
       (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
     ) {
       if (video) {
-        video.currentTime += event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
+        const delta = event.key === 'ArrowRight' ? longSeekSeconds : -longSeekSeconds;
+        video.currentTime += delta;
+        showSeekStatus(delta);
         event.preventDefault();
       }
       return;
@@ -254,6 +299,7 @@ window.addEventListener(
     if (event.key === 'ArrowRight') {
       if (video) {
         video.currentTime += shortSeekSeconds;
+        showSeekStatus(shortSeekSeconds);
         event.preventDefault();
       }
       return;
@@ -262,6 +308,7 @@ window.addEventListener(
     if (event.key === 'ArrowLeft') {
       if (video) {
         video.currentTime -= shortSeekSeconds;
+        showSeekStatus(-shortSeekSeconds);
         event.preventDefault();
       }
       return;

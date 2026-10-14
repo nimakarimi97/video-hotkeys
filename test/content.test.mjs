@@ -143,6 +143,15 @@ test('does not intercept shortcuts in editable controls', () => {
     target: { tagName: 'DIV', getAttribute: (name) => name === 'role' ? 'textbox' : null }
   });
   assert.equal(harness.video.currentTime, 100);
+
+  harness.dispatch({
+    key: 'ArrowRight',
+    target: {
+      tagName: 'SPAN',
+      closest: (sel) => sel.includes('contenteditable') ? true : null
+    }
+  });
+  assert.equal(harness.video.currentTime, 100);
 });
 
 test('persists toggle changes and disables video shortcuts', () => {
