@@ -47,3 +47,25 @@ Use the animated demo as the first supported media item. Where a store accepts o
 ## Privacy Disclosure
 
 Video Hotkeys does not collect, transmit, sell, or share user data. The extension stores only its enabled state and the user's short and long seek intervals through the browser's local WebExtensions storage API.
+
+## Chrome Web Store Submission Checklist
+
+Copy and paste these exact declarations into the Chrome Web Store Developer Dashboard:
+
+### 1. Single Purpose Description
+> Provides keyboard shortcuts to control HTML5 video playback.
+
+### 2. Host Permission Justification (`http://*/*`, `https://*/*`)
+> The extension injects a content script to enable keyboard controls (seeking, speed adjustment, volume, picture-in-picture) on HTML5 video elements across any website the user visits.
+
+### 3. Permission Justification (`storage`)
+> Required to store user preferences locally (enabled state, customized short and long seek intervals) with zero network transmissions.
+
+### 4. Privacy Policy URL
+> `https://nimakarimi.me/video-hotkeys-privacy` (or link to [PRIVACY_POLICY.md](PRIVACY_POLICY.md) on your website/repo)
+
+### 5. Data Usage / User Data FAQ Form
+- **Certify that you do not sell user data:** Yes
+- **Certify that you do not use or transfer user data for unrelated purposes:** Yes
+- **Certify that you do not use user data for creditworthiness/lending:** Yes
+- **Data types collected:** Check **None** (No personal info, no web history, no authentication info, no user activity).

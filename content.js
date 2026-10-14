@@ -383,12 +383,12 @@ window.addEventListener(
     if (key === 'p' && !event.ctrlKey && !event.metaKey && !event.altKey) {
       if (video) {
         if (document.pictureInPictureElement) {
-          document.exitPictureInPicture?.().catch?.(() => {});
+          document.exitPictureInPicture?.().catch?.(() => { });
           showInfoStatus('PiP: Off');
         } else if (typeof video.requestPictureInPicture === 'function') {
           video.requestPictureInPicture().then?.(() => {
             showInfoStatus('PiP: On');
-          })?.catch?.(() => {});
+          })?.catch?.(() => { });
         }
         event.preventDefault();
       }
@@ -399,12 +399,12 @@ window.addEventListener(
       if (video) {
         const fsElement = document.fullscreenElement ?? document.webkitFullscreenElement;
         if (fsElement) {
-          if (document.exitFullscreen) document.exitFullscreen().catch?.(() => {});
+          if (document.exitFullscreen) document.exitFullscreen().catch?.(() => { });
           else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
           showInfoStatus('Fullscreen: Off');
         } else {
           const targetEl = video.parentElement || video;
-          if (targetEl.requestFullscreen) targetEl.requestFullscreen().catch?.(() => {});
+          if (targetEl.requestFullscreen) targetEl.requestFullscreen().catch?.(() => { });
           else if (targetEl.webkitRequestFullscreen) targetEl.webkitRequestFullscreen();
           showInfoStatus('Fullscreen: On');
         }

@@ -17,8 +17,8 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
     volume: 1,
     muted: false,
     tagName: 'VIDEO',
-    requestPictureInPicture: async () => {},
-    requestFullscreen: async () => {},
+    requestPictureInPicture: async () => { },
+    requestFullscreen: async () => { },
     ...overrides
   }));
 
