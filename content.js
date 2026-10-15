@@ -371,7 +371,13 @@ window.addEventListener(
       return;
     }
 
-    if (event.key === 'ArrowRight') {
+    if (
+      event.key === 'ArrowRight' &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey
+    ) {
       if (!video) return;
       video.currentTime += shortSeekSeconds;
       showSeekStatus(shortSeekSeconds, video.currentTime, video);
@@ -379,7 +385,13 @@ window.addEventListener(
       return;
     }
 
-    if (event.key === 'ArrowLeft') {
+    if (
+      event.key === 'ArrowLeft' &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey
+    ) {
       if (!video) return;
       video.currentTime -= shortSeekSeconds;
       showSeekStatus(-shortSeekSeconds, video.currentTime, video);

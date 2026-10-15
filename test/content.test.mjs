@@ -100,6 +100,14 @@ test('seeks by 5 seconds with ArrowRight', () => {
   assert.equal(event.defaultPrevented, true);
 });
 
+test('does not intercept Option-modified arrow keys', () => {
+  const harness = createHarness();
+  const event = harness.dispatch({ key: 'ArrowRight', altKey: true });
+
+  assert.equal(harness.video.currentTime, 100);
+  assert.equal(Boolean(event.defaultPrevented), false);
+});
+
 test('seeks by 15 seconds with platform modifier keys', () => {
   const harness = createHarness();
 
