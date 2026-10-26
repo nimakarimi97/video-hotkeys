@@ -135,6 +135,12 @@ function showSpeedStatus(speed, video) {
       'top': '56px !important',
       'right': '16px !important',
       'background': '#1f2937 !important',
+      '-webkit-touch-callout': 'none !important',
+      '-webkit-user-select': 'none !important',
+      '-khtml-user-select': 'none !important',
+      '-moz-user-select': 'none !important',
+      '-ms-user-select': 'none !important',
+      'user-select': 'none !important',
     },
     1200,
     video

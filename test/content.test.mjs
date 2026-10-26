@@ -170,6 +170,8 @@ test('places status badges in the fullscreen container aligned to the video', ()
   harness.dispatch({ key: '>', shiftKey: true });
 
   assert.equal(fullscreenBadge.textContent, 'Speed 1.25x');
+  assert.match(fullscreenBadge.style.cssText, /-webkit-user-select: none !important/);
+  assert.match(fullscreenBadge.style.cssText, /user-select: none !important/);
   assert.match(fullscreenBadge.style.cssText, /top: 156px !important/);
   assert.match(fullscreenBadge.style.cssText, /right: 316px !important/);
 });
