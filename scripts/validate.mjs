@@ -11,6 +11,10 @@ assert.equal(manifest.manifest_version, 3, 'manifest_version must be 3');
 assert.match(manifest.version, /^\d+(?:\.\d+){0,3}$/, 'version must use Chrome version syntax');
 assert.ok(manifest.description.length <= 132, 'description must be at most 132 characters');
 assert.deepEqual(manifest.permissions, ['storage'], 'extension should request only storage permission');
+assert.ok(
+  manifest.content_scripts.some((script) => script.run_at === 'document_start'),
+  'content scripts must register before page scripts can capture keyboard shortcuts'
+);
 assert.deepEqual(
   manifest.browser_specific_settings?.gecko?.data_collection_permissions?.required,
   ['none'],

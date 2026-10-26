@@ -26,6 +26,7 @@ Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It cont
 ## Features
 
 - Seek forward or backward without opening player controls.
+- Use keyboard controls on HTML5 videos in Instagram posts, Stories and Reels, TikTok videos, and YouTube Shorts, subject to site and browser restrictions.
 - Control the currently playing video on pages containing multiple videos, iframes, or shadow DOM players.
 - Customize short and long seek intervals, with sensible `5` and `15` second defaults.
 - Adjust playback speed from `0.5x` to `4x` in `0.25x` steps.

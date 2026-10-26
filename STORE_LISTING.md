@@ -2,11 +2,13 @@
 
 ## Short Description
 
-Control the video you're watching with private, customizable keyboard shortcuts. One permission, zero network requests.
+Keyboard controls for Instagram posts, Stories and Reels, TikTok videos, and YouTube Shorts.
 
 ## Full Description
 
 Video Hotkeys gives you fast, lightweight keyboard controls for HTML5 videos across the web in Chrome and Firefox.
+
+Use it with videos in Instagram posts, Stories and Reels, TikTok videos, and YouTube Shorts, as well as other sites with HTML5 video players. Controls depend on each site's player and browser restrictions; some embedded or protected videos may not be accessible.
 
 Control the video you're watching without clicking the player controls. Seek forward and backward with arrow keys, change playback speed, toggle Picture-in-Picture (PiP), switch fullscreen, and adjust volume. It automatically targets the active or playing video, even on pages with multiple videos, iframes, or open shadow DOM components.
 
