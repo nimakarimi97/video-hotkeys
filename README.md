@@ -101,6 +101,20 @@ npm run check
 
 This command validates the manifest and packaged assets, then runs behavior tests against the content scripts. The same check runs in GitHub Actions for every push and pull request.
 
+## Build A Chrome Web Store Package
+
+The current Chrome Web Store listing requires a CRX package. From the project root, run the checks, then make sure `manifest.json` has a version newer than the version currently published or in draft. The version in `package.json` does not determine the extension version.
+
+```bash
+npm run package
+```
+
+The script runs the checks, stages the extension files and icons in a temporary folder, packs them with Chrome using `privatekey.pem`, and writes `dist/video-hotkeys-<version>.crx`. The `dist/` folder and CRX files are git-ignored. Set `CHROME_BIN` to use a different Chrome binary. Quit Chrome first if packing does not finish.
+
+Upload the created `.crx` file using **Upload new package** in the Chrome Web Store Developer Dashboard. Confirm that the draft shows the intended version before submitting it for review.
+
+The PEM file must be the private key matching the dashboard's **Verified CRX uploads** public key. If you do not have that key, do not generate a replacement; ask the publisher or Chrome Web Store support. Keep the PEM private and never include it in the package. The script stages only the extension files and icons.
+
 | Path | Purpose |
 | --- | --- |
 | `content.js` | Page-level keyboard and video controls |

@@ -6,6 +6,7 @@
   "scripts": {
     "validate": "node scripts/validate.mjs",
     "test": "node --test",
+    "package": "bash scripts/package-crx.sh",
     "check": "npm run validate && npm test"
   },
   "engines": {
