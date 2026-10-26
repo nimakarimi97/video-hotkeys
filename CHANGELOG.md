@@ -2,6 +2,14 @@
 
 All notable changes to Video Hotkeys are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.6.3] - 2026-10-26
+
+### Fixed
+
+- Stop `F`, `M`, `P`, and arrow shortcuts from firing while typing in rich-text editors, such as LinkedIn comments and messages.
+- Detect editors inside shadow DOM, ARIA textbox/search/combobox fields, and non-boolean `contenteditable` values.
+- Ignore shortcuts during IME composition.
+
 ## [1.6.2] - 2026-10-26
 
 ### Fixed

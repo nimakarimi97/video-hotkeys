@@ -1,6 +1,6 @@
 {
   "name": "video-hotkeys",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "private": true,
   "description": "Keyboard controls for seeking and changing playback speed in HTML5 videos.",
   "scripts": {

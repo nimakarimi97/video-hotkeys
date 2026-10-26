@@ -253,7 +253,7 @@ function changeVideoSpeed(video, step) {
 }
 
 function canHandleVideoShortcut(event) {
-  return isHotkeyEnabled && !videoUtils.isTypingTarget(event.target);
+  return isHotkeyEnabled && !videoUtils.isTypingEvent(event, document);
 }
 
 async function toggleFullscreen(video) {

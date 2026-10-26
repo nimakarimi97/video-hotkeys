@@ -34,24 +34,50 @@
   return visibleWidth * visibleHeight;
  }
 
+ const EDITABLE_SELECTOR = [
+  'input',
+  'textarea',
+  'select',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[role="textbox"]',
+  '[role="searchbox"]',
+  '[role="combobox"]',
+ ].join(', ');
+
  function isTypingTarget(target) {
-  if (!target) return false;
-  const tagName = target.tagName;
+  if (!target || target.nodeType === 9) return false;
+  const tagName = String(target.tagName ?? '').toUpperCase();
   if (
    tagName === 'INPUT' ||
    tagName === 'TEXTAREA' ||
    tagName === 'SELECT' ||
    target.isContentEditable ||
-   target.getAttribute?.('role') === 'textbox'
+   ['textbox', 'searchbox', 'combobox'].includes(target.getAttribute?.('role'))
   ) {
    return true;
   }
   if (typeof target.closest === 'function') {
-   return Boolean(
-    target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]')
-   );
+   return Boolean(target.closest(EDITABLE_SELECTOR));
   }
   return false;
+ }
+
+ function getDeepActiveElement(root) {
+  let active = root?.activeElement ?? null;
+  while (active?.shadowRoot?.activeElement) {
+   active = active.shadowRoot.activeElement;
+  }
+  return active;
+ }
+
+ // event.target is retargeted to the shadow host, so also inspect the composed
+ // path and the focused element to find the real editor.
+ function isTypingEvent(event, root) {
+  if (!event) return false;
+  if (event.isComposing || event.keyCode === 229) return true;
+
+  const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+  return [event.target, getDeepActiveElement(root), ...path].some(isTypingTarget);
  }
 
  function clampSpeed(value) {
@@ -80,6 +106,7 @@
   getVisibleArea,
   isPlaying,
   isShiftQuestionShortcut,
+  isTypingEvent,
   isTypingTarget,
   normalizeSeekInterval,
  });

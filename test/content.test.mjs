@@ -445,3 +445,73 @@ test('does not intercept shortcuts when multiple paused videos exist and none wa
   assert.equal(harness.videos[0].currentTime, 100);
   assert.equal(harness.videos[1].currentTime, 100);
 });
+test('does not trigger page-first shortcuts when typing in editors', () => {
+  const editors = [
+    { tagName: 'DIV', isContentEditable: true },
+    { tagName: 'P', closest: (selector) => selector.includes('[contenteditable]') ? {} : null },
+    { tagName: 'DIV', getAttribute: (name) => name === 'role' ? 'combobox' : null },
+    { tagName: 'INPUT' },
+  ];
+
+  for (const target of editors) {
+    let fsCalled = false;
+    const harness = createHarness({}, [{
+      paused: false,
+      requestFullscreen: async () => { fsCalled = true; },
+      muted: false
+    }]);
+
+    const event = harness.dispatch({ key: 'f', target });
+    harness.dispatch({ key: 'm', target });
+
+    assert.equal(fsCalled, false);
+    assert.equal(harness.video.muted, false);
+    assert.equal(event.defaultPrevented, undefined);
+  }
+});
+
+test('detects editors hidden by shadow DOM retargeting', () => {
+  let fsCalled = false;
+  const harness = createHarness({}, [{
+    paused: false,
+    requestFullscreen: async () => { fsCalled = true; }
+  }]);
+
+  const event = harness.dispatch({
+    key: 'f',
+    target: { tagName: 'DIV' },
+    composedPath: () => [{ tagName: 'DIV', isContentEditable: true }, { tagName: 'DIV' }]
+  });
+
+  assert.equal(fsCalled, false);
+  assert.equal(event.defaultPrevented, undefined);
+});
+
+test('detects a focused editor inside nested shadow roots', () => {
+  let fsCalled = false;
+  const harness = createHarness({}, [{
+    paused: false,
+    requestFullscreen: async () => { fsCalled = true; }
+  }]);
+  harness.document.activeElement = {
+    tagName: 'DIV',
+    shadowRoot: { activeElement: { tagName: 'TEXTAREA' } }
+  };
+
+  harness.dispatch({ key: 'f' });
+
+  assert.equal(fsCalled, false);
+});
+
+test('ignores shortcuts during IME composition', () => {
+  let fsCalled = false;
+  const harness = createHarness({}, [{
+    paused: false,
+    requestFullscreen: async () => { fsCalled = true; }
+  }]);
+
+  harness.dispatch({ key: 'f', isComposing: true });
+  harness.dispatch({ key: 'f', keyCode: 229 });
+
+  assert.equal(fsCalled, false);
+});
