@@ -55,6 +55,8 @@ Video Hotkeys is a small, privacy-friendly Chrome and Firefox extension. It cont
 
 Some websites or operating systems may already use one of these shortcuts. Open the extension popup to disable Video Hotkeys temporarily if a conflict occurs.
 
+Fullscreen requires an active user gesture. If a website consumes that gesture or blocks fullscreen (for example, in a restricted embedded player), the extension shows a message instead of reporting success. Press `F` again or use the player's fullscreen controls.
+
 ## Install In Chrome
 
 1. Download or clone this repository.

@@ -250,19 +250,34 @@ function canHandleVideoShortcut(event) {
   return isHotkeyEnabled && !videoUtils.isTypingTarget(event.target);
 }
 
-function toggleFullscreen(video) {
+async function toggleFullscreen(video) {
   const fullscreenElement = document.fullscreenElement ?? document.webkitFullscreenElement;
-  if (fullscreenElement) {
-    if (document.exitFullscreen) document.exitFullscreen().catch?.(() => { });
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    showInfoStatus('Fullscreen: Off', video);
+  const target = fullscreenElement
+    ? document
+    : video.closest?.('.html5-video-player') ?? video.parentElement ?? video;
+  const action = fullscreenElement
+    ? document.exitFullscreen ?? document.webkitExitFullscreen
+    : target.requestFullscreen ?? target.webkitRequestFullscreen;
+
+  if (typeof action !== 'function') {
+    showInfoStatus('Fullscreen unavailable on this page', video);
     return;
   }
 
-  const target = video.closest?.('.html5-video-player') ?? video.parentElement ?? video;
-  if (target.requestFullscreen) target.requestFullscreen().catch?.(() => { });
-  else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
-  showInfoStatus('Fullscreen: On', video);
+  if (!fullscreenElement && globalThis.navigator?.userActivation?.isActive === false) {
+    showInfoStatus('Fullscreen needs a user gesture. Press F again or use the player controls.', video);
+    return;
+  }
+
+  try {
+    // Invoke before awaiting so the keyboard gesture's activation is preserved.
+    await action.call(target);
+  } catch (error) {
+    showInfoStatus(`Fullscreen failed: ${error.message ?? error}`, video);
+    return;
+  }
+
+  showInfoStatus(`Fullscreen: ${fullscreenElement ? 'Off' : 'On'}`, video);
 }
 
 function toggleMute(video) {
@@ -312,6 +327,7 @@ function handlePageFirstShortcut(event) {
   const shortcut = videoUtils.getPageFirstShortcut(event);
   const action = pageFirstShortcutActions[shortcut];
   if (!action) return;
+  if (shortcut === 'f' && event.repeat) return;
 
   const video = getPageVideo();
   if (!video) return;

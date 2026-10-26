@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { setImmediate } from 'node:timers/promises';
 import vm from 'node:vm';
 
 const source = await readFile(new URL('../content.js', import.meta.url), 'utf8');
@@ -52,7 +53,8 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
     setTimeout: (callback) => callback()
   };
 
-  const context = { [apiName]: webExtensionApi, document, window };
+  const navigator = { userActivation: { isActive: true } };
+  const context = { [apiName]: webExtensionApi, document, window, navigator };
   vm.runInNewContext(utilitiesSource, context);
   vm.runInNewContext(source, context);
 
@@ -79,6 +81,7 @@ function createHarness(initialStorage = {}, videoOverrides = [{}], apiName = 'ch
     listeners,
     storage,
     document,
+    navigator,
     appendedElements,
     video: videos[0],
     videos
@@ -302,6 +305,134 @@ test('uses the YouTube player shell for the fullscreen fallback', () => {
   harness.dispatch({ key: 'f' });
 
   assert.equal(fullscreenTarget, 'player');
+});
+
+test('does not request fullscreen without active user activation', () => {
+  let calls = 0;
+  const harness = createHarness({}, [{
+    requestFullscreen: () => { calls++; }
+  }]);
+  harness.navigator.userActivation.isActive = false;
+
+  harness.dispatch({ key: 'f' });
+
+  assert.equal(calls, 0);
+  assert.match(harness.appendedElements.at(-1).textContent, /needs a user gesture/);
+});
+
+test('requests fullscreen synchronously and reports success only after it resolves', async () => {
+  let resolveRequest;
+  let receiver;
+  const harness = createHarness({}, [{
+    requestFullscreen() {
+      receiver = this;
+      return new Promise((resolve) => { resolveRequest = resolve; });
+    }
+  }]);
+
+  harness.dispatch({ key: 'f' });
+
+  assert.equal(receiver, harness.video);
+  assert.equal(harness.appendedElements.length, 0);
+  resolveRequest();
+  await setImmediate();
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen: On');
+});
+
+test('reports rejected fullscreen requests without claiming success', async () => {
+  const harness = createHarness({}, [{
+    requestFullscreen: () => Promise.reject(new Error('Permission denied'))
+  }]);
+
+  harness.dispatch({ key: 'f' });
+  await setImmediate();
+
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen failed: Permission denied');
+});
+
+test('reports synchronous fullscreen errors', async () => {
+  const harness = createHarness({}, [{
+    requestFullscreen: () => { throw new Error('Blocked by this page'); }
+  }]);
+
+  assert.doesNotThrow(() => harness.dispatch({ key: 'f' }));
+  await setImmediate();
+
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen failed: Blocked by this page');
+});
+
+test('reports unsupported fullscreen without claiming success', () => {
+  const harness = createHarness({}, [{ requestFullscreen: undefined }]);
+
+  harness.dispatch({ key: 'f' });
+
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen unavailable on this page');
+});
+
+test('exits fullscreen without requiring user activation', async () => {
+  const harness = createHarness();
+  let receiver;
+  let resolveExit;
+  harness.document.fullscreenElement = harness.video;
+  harness.document.exitFullscreen = function () {
+    receiver = this;
+    return new Promise((resolve) => { resolveExit = resolve; });
+  };
+  harness.navigator.userActivation.isActive = false;
+
+  harness.dispatch({ key: 'f' });
+
+  assert.equal(receiver, harness.document);
+  assert.equal(harness.appendedElements.length, 0);
+  resolveExit();
+  await setImmediate();
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen: Off');
+});
+
+test('reports fullscreen exit failures without claiming success', async () => {
+  const harness = createHarness();
+  harness.document.fullscreenElement = harness.video;
+  harness.document.exitFullscreen = () => Promise.reject(new Error('Exit denied'));
+
+  harness.dispatch({ key: 'f' });
+  await setImmediate();
+
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen failed: Exit denied');
+});
+
+test('supports prefixed fullscreen APIs that do not return promises', async () => {
+  let receiver;
+  const harness = createHarness({}, [{
+    requestFullscreen: undefined,
+    webkitRequestFullscreen() { receiver = this; }
+  }]);
+  delete harness.navigator.userActivation;
+
+  harness.dispatch({ key: 'f' });
+  await setImmediate();
+
+  assert.equal(receiver, harness.video);
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen: On');
+
+  harness.document.webkitFullscreenElement = harness.video;
+  harness.document.webkitExitFullscreen = function () { receiver = this; };
+  harness.dispatch({ key: 'f' });
+  await setImmediate();
+
+  assert.equal(receiver, harness.document);
+  assert.equal(harness.appendedElements.at(-1).textContent, 'Fullscreen: Off');
+});
+
+test('does not toggle fullscreen repeatedly while F is held down', () => {
+  let calls = 0;
+  const harness = createHarness({}, [{
+    requestFullscreen: async () => { calls++; }
+  }]);
+
+  harness.dispatch({ key: 'f' });
+  harness.dispatch({ key: 'f', repeat: true });
+
+  assert.equal(calls, 1);
 });
 
 test('does not intercept shortcuts when multiple paused videos exist and none was active', () => {
