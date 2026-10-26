@@ -2,6 +2,16 @@
 
 All notable changes to Video Hotkeys are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.6.2] - 2026-10-26
+
+### Fixed
+
+- Avoid fullscreen requests when browser user activation is unavailable.
+- Report fullscreen failures instead of displaying a false success status.
+- Ignore repeated fullscreen keydown events while holding `F`.
+- Register keyboard shortcuts before page scripts run to prevent conflicts on YouTube Shorts.
+- Make the speed status text non-selectable.
+
 ## [1.6.0] - 2026-10-14
 
 ### Added
